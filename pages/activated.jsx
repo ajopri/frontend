@@ -1,5 +1,5 @@
 import Authlayout from "@components/Layouts/AuthLayout";
-import Primarybutton from "@components/PrimaryButton";
+import Primarybutton from "@components/Button/PrimaryButton";
 import { useRouter } from "next/router";
 
 export default function Activated() {

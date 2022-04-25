@@ -1,6 +1,6 @@
 import Head from "next/head";
-import Countrydropdown from "../CountryDropdown";
-import Mahalogo from "../MahaLogo";
+import Countrydropdown from "../Inputs/CountryDropdown";
+import Mahalogo from "../Logo/MahaLogo";
 
 export default function Authlayout({children, pageTitle}) {
 

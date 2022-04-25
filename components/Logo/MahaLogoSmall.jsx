@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import MahaLogoSmall from '../public/maha-logo-small.png'
+import MahaLogoSmall from '../../public/maha-logo-small.png'
 
 export default function Mahalogosmall({ width, height }) {
     return (
