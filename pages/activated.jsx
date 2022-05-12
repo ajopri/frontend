@@ -1,9 +1,9 @@
-import Authlayout from "@components/Layouts/AuthLayout";
-import Primarybutton from "@components/Button/PrimaryButton";
-import { useRouter } from "next/router";
+import Authlayout from '@components/Layouts/AuthLayout'
+import Primarybutton from '@components/Button/PrimaryButton'
+import { useRouter } from 'next/router'
 
 export default function Activated() {
-    const router = useRouter();
+    const router = useRouter()
 
     return (
         <Authlayout pageTitle="Activated">
@@ -22,7 +22,8 @@ export default function Activated() {
                 </div>
                 <div className="sm:w-[21rem] w-fit">
                     <div className="mb-6">
-                        <Primarybutton onClick={() => router.push('/dashboard')}>
+                        <Primarybutton
+                            onClick={() => router.push('/dashboard')}>
                             continue
                         </Primarybutton>
                     </div>

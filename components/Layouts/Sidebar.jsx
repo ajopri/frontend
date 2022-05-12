@@ -32,7 +32,7 @@ export default function Sidebar() {
                 {/* sidebar close button */}
                 <button
                     type="button"
-                    className={`my-auto top-0 h-16 text-gray-500 transition hover:text-maha-purple fixed duration-500 ${
+                    className={`my-auto top-0 h-16 text-gray-500 transition hover:text-maha-purple absolute duration-500 ${
                         openSidebar ? 'left-60 delay-700' : 'w-auto sm:left-24'
                     }`}
                     onClick={handleSidebar}>

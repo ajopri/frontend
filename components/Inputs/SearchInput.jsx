@@ -1,6 +1,9 @@
-export default function Searchinput({disabled = false, placeholder = '', className, ...props}) {
-    
-
+export default function Searchinput({
+    disabled = false,
+    placeholder = '',
+    className,
+    ...props
+}) {
     return (
         <input
             disabled={disabled}

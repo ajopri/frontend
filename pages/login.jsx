@@ -1,9 +1,47 @@
-import Authlayout from "@components/Layouts/AuthLayout";
-import Primarybutton from "@components/Button/PrimaryButton";
-import Link from "next/link";
-import Router from "next/router";
+import Authlayout from '@components/Layouts/AuthLayout'
+import Primarybutton from '@components/Button/PrimaryButton'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import Input from '@components/Inputs/Input'
+import { useEffect, useState } from 'react'
+import Authsessionstatus from '@components/Layouts/AuthSessionStatus'
+import Authvalidationerrors from '@components/Layouts/AuthValidationErrors'
+import { useAuth } from '@/hooks/auth'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faFan } from '@fortawesome/free-solid-svg-icons'
 
 export default function Login() {
+    const router = useRouter()
+
+    // Auth hook
+    const { login, sapToken } = useAuth({
+        middleware: 'guest',
+        redirectIfAuthenticated: '/dashboard',
+    })
+
+    //States
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [errors, setErrors] = useState([])
+    const [status, setStatus] = useState(null)
+    const [isLoading, setIsLoading] = useState(false)
+
+    useEffect(() => {
+        if (router.query.reset?.length > 0 && errors.length === 0) {
+            setStatus(atob(router.query.reset))
+        } else {
+            setStatus(null)
+        }
+    })
+
+    //Form submit
+    const submitForm = async event => {
+        event.preventDefault()
+        setIsLoading(true)
+        login({ email, password, setErrors, setStatus, setIsLoading })
+        sapToken({ setErrors, setStatus })
+    }
+
     return (
         <Authlayout pageTitle="Login">
             {/* content */}
@@ -19,23 +57,36 @@ export default function Login() {
                 </div>
                 {/* Form */}
                 <div className="sm:w-[21rem] w-fit">
-                    <form className="mb-4">
+                    {/* Session Status */}
+                    <Authsessionstatus className="mb-4" status={status} />
+
+                    {/* Validation Errors */}
+                    <Authvalidationerrors errors={errors} />
+
+                    {/* Login form */}
+                    <form className="mb-4" onSubmit={submitForm}>
                         <div className="mb-3">
-                            <input
+                            <Input
                                 type="email"
-                                name="email"
                                 id="email"
-                                placeholder="Email"
-                                className="w-full px-3 py-2 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 "
+                                value={email}
+                                onChange={event => setEmail(event.target.value)}
+                                className="text-base"
+                                required
+                                autoFocus
+                                autoComplete="off"
                             />
                         </div>
                         <div className="mb-3">
-                            <input
+                            <Input
                                 type="password"
-                                name="password"
                                 id="password"
-                                placeholder="Password"
-                                className="w-full px-3 py-2 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 "
+                                value={password}
+                                onChange={event =>
+                                    setPassword(event.target.value)
+                                }
+                                required
+                                autoComplete="off"
                             />
                         </div>
                         <div className="mb-6">
@@ -66,8 +117,15 @@ export default function Login() {
                             </div>
                         </div>
                         <div className="mb-6">
-                            <Primarybutton onClick={() => Router.push('/dashboard')}>
-                                sign in
+                            <Primarybutton>
+                                {!isLoading ? (
+                                    'Log In'
+                                ) : (
+                                    <span>
+                                        <FontAwesomeIcon icon={faFan} spin />{' '}
+                                        Loading...
+                                    </span>
+                                )}
                             </Primarybutton>
                         </div>
                         <p className="text-xs text-left text-gray-400">
