@@ -75,16 +75,29 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
         setErrors([])
         setStatus(null)
 
-        axios
-            .post('/login', props)
-            .then(() => mutate())
-            .catch(error => {
-                if (error.response.status !== 422) throw error
+        if(!props.isAdmin){
+            axios
+                .post('/login', props)
+                .then(() => mutate())
+                .catch(error => {
+                    if (error.response.status !== 422) throw error
+    
+                    setErrors(Object.values(error.response.data.errors).flat())
+    
+                    setIsLoading(false)
+                })
+        } else {
+            axios
+                .post('/login/admin', props)
+                .then(() => mutate())
+                .catch(error => {
+                    if (error.response.status !== 422) throw error
 
-                setErrors(Object.values(error.response.data.errors).flat())
+                    setErrors(Object.values(error.response.data.errors).flat())
 
-                setIsLoading(false)
-            })
+                    setIsLoading(false)
+                })
+        }
     }
 
     //Forgot password
@@ -130,6 +143,33 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             .then(response => setStatus(response.data.status))
     }
 
+    //activate account
+    const activateAccount = async ({
+        setErrors,
+        setStatus,
+        setIsLoading,
+        ...props
+    }) => {
+        await csrf()
+
+        setErrors([])
+        setStatus(null)
+
+        axios
+            .post('/api/activate-account', {
+                token: router.query.token,
+                ...props,
+            })
+            .then(response =>
+                router.push('/login?reset=' + btoa(response.data.status)),
+            )
+            .catch(error => {
+                if (error.response.status != 422) throw error
+                setErrors(Object.values(error.response.data).flat())
+                setIsLoading(false)
+            })
+    }
+
     //Logout
     const logout = async () => {
         if (!error) {
@@ -153,6 +193,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
         forgotPassword,
         resetPassword,
         resendEmailVerification,
+        activateAccount,
         logout,
     }
 }

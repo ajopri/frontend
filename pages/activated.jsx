@@ -23,7 +23,7 @@ export default function Activated() {
                 <div className="sm:w-[21rem] w-fit">
                     <div className="mb-6">
                         <Primarybutton
-                            onClick={() => router.push('/dashboard')}>
+                            onClick={() => router.push('/login')}>
                             continue
                         </Primarybutton>
                     </div>

@@ -2,9 +2,41 @@ import Authlayout from '@components/Layouts/AuthLayout'
 import Primarybutton from '@components/Button/PrimaryButton'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useAuth } from '@/hooks/auth'
+import { useState, useEffect } from 'react'
+import Authsessionstatus from '@/components/Layouts/AuthSessionStatus'
+import Authvalidationerrors from '@/components/Layouts/AuthValidationErrors'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faFan } from '@fortawesome/free-solid-svg-icons'
 
 export default function Activate() {
     const router = useRouter()
+
+    const { activateAccount } = useAuth({ middleware: 'guest' })
+
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [password_confirmation, setPasswordConfirmation] = useState('')
+    const [errors, setErrors] = useState([])
+    const [status, setStatus] = useState(null)
+    const [isLoading, setIsLoading] = useState(false)
+
+    const submitForm = event => {
+        event.preventDefault()
+        setIsLoading(true)
+        activateAccount({
+            email,
+            password,
+            password_confirmation,
+            setErrors,
+            setStatus,
+            setIsLoading,
+        })
+    }
+
+    useEffect(() => {
+        setEmail(router.query.email || '')
+    }, [router.query.email])
 
     return (
         <>
@@ -19,17 +51,23 @@ export default function Activate() {
                         <p className="mt-2 text-sm text-gray-500">
                             Create a password to log into e-services.
                         </p>
+                        {/* Session Status */}
+                        <Authsessionstatus className="mb-4" status={status} />
+                        {/* Validation Errors */}
+                        <Authvalidationerrors errors={errors} />
                     </div>
                     <div className="sm:w-[21rem] w-fit">
-                        <form className="mb-4">
+                        <form className="mb-4" onSubmit={submitForm}>
                             <div className="mb-3">
                                 <input
                                     name="email"
                                     id="email"
                                     placeholder="Email"
                                     readOnly
-                                    disabled
-                                    value="lily.chong@nipponpaint.com.sg"
+                                    value={email}
+                                    onChange={event =>
+                                        setEmail(event.target.value)
+                                    }
                                     className="w-full px-3 py-2 text-gray-400 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300"
                                 />
                             </div>
@@ -38,7 +76,11 @@ export default function Activate() {
                                     name="password"
                                     id="password"
                                     type="password"
+                                    value={password}
                                     placeholder="Password"
+                                    onChange={event =>
+                                        setPassword(event.target.value)
+                                    }
                                     className="w-full px-3 py-2 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300"
                                 />
                             </div>
@@ -48,13 +90,28 @@ export default function Activate() {
                                     id="password-confirmation"
                                     type="password"
                                     placeholder="Confirm password"
+                                    value={password_confirmation}
+                                    onChange={event =>
+                                        setPasswordConfirmation(
+                                            event.target.value,
+                                        )
+                                    }
                                     className="w-full px-3 py-2 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300"
                                 />
                             </div>
                             <div className="my-6">
-                                <Primarybutton
-                                    onClick={() => router.push('/activated')}>
-                                    activate
+                                <Primarybutton>
+                                    {!isLoading ? (
+                                        'activate'
+                                    ) : (
+                                        <span>
+                                            <FontAwesomeIcon
+                                                icon={faFan}
+                                                spin
+                                            />{' '}
+                                            Loading...
+                                        </span>
+                                    )}
                                 </Primarybutton>
                             </div>
                             <p className="text-xs text-left text-gray-400">

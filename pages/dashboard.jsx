@@ -126,7 +126,7 @@ export default function Index() {
             setcountScheduled(newItem.length)
         }
 
-        if (isLoading) return <p className="mx-auto p-4">Loading...</p>
+        if (isLoading) return <p className="p-4 mx-auto">Loading...</p>
         if (!datas) return <p>No data</p>
 
         return (
