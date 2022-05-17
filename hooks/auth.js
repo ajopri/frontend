@@ -75,20 +75,20 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
         setErrors([])
         setStatus(null)
 
-        if(!props.isAdmin){
+        if (!props.isAdmin) {
             axios
                 .post('/login', props)
                 .then(() => mutate())
                 .catch(error => {
                     if (error.response.status !== 422) throw error
-    
+
                     setErrors(Object.values(error.response.data.errors).flat())
-    
+
                     setIsLoading(false)
                 })
         } else {
             axios
-                .post('/login/admin', props)
+                .post('/api/login/admin', props)
                 .then(() => mutate())
                 .catch(error => {
                     if (error.response.status !== 422) throw error

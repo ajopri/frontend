@@ -1,9 +1,9 @@
-import { useAuth } from '@/hooks/auth'
 import { useState } from 'react'
-import Authlayout from '@/components/Layouts/AuthLayout'
 import Primarybutton from '@components/Button/PrimaryButton'
+import { useAuth } from '@/hooks/auth'
+import Authlayout from '@/components/Layouts/AuthLayout'
 
-const VerifyEmail = () => {
+function VerifyEmail() {
     const { logout, resendEmailVerification } = useAuth({
         middleware: 'auth',
     })

@@ -1,7 +1,8 @@
 import Link from 'next/link'
 
-const DropdownLink = ({ children, ...props }) => (
-        ({ active }) => (
+const DropdownLink = ({ children, ...props }) =>
+    function ({ active }) {
+        return (
             <Link {...props}>
                 <a
                     className={`w-full text-left block px-4 py-2 text-sm leading-5 text-gray-700 ${
@@ -11,10 +12,11 @@ const DropdownLink = ({ children, ...props }) => (
                 </a>
             </Link>
         )
-)
+    }
 
-export const DropdownButton = ({ children, ...props }) => (
-        ({ active }) => (
+export const DropdownButton = ({ children, ...props }) =>
+    function ({ active }) {
+        return (
             <button
                 className={`w-full text-left block px-4 py-2 text-sm leading-5 text-gray-700 ${
                     active ? 'bg-gray-100' : ''
@@ -23,6 +25,6 @@ export const DropdownButton = ({ children, ...props }) => (
                 {children}
             </button>
         )
-)
+    }
 
 export default DropdownLink

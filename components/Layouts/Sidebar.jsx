@@ -24,8 +24,7 @@ export default function Sidebar() {
     const classLink =
         'flex w-full px-3 py-5 font-medium text-slate-500 hover:bg-slate-100 hover:border-r-maha-500 hover:border-r-2'
     return (
-        <>
-            <aside
+        <aside
                 className={`top-0 shadow left-0 duration-500 bg-white min-h-screen h-full z-50 ${
                     openSidebar ? 'w-20 sm:w-64' : 'hidden sm:block w-20'
                 }`}>
@@ -103,6 +102,5 @@ export default function Sidebar() {
                     ))}
                 </nav>
             </aside>
-        </>
     )
 }

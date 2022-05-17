@@ -6,8 +6,8 @@ import Subtitle from '@components/Typography/SubTitle'
 import { faChevronDown, faSearch } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
-import useSAP from '@/lib/sap'
 import { Tooltip } from '@nextui-org/react'
+import useSAP from '@/lib/sap'
 
 export default function Index() {
     const [openTab, setOpenTab] = useState(1)
@@ -113,7 +113,7 @@ export default function Index() {
             return str.charAt(0).toUpperCase() + lower.slice(1)
         }
 
-        //Filter data
+        // Filter data
         const filterStat = stat => {
             const newItem = datas
             // if (stat !== 'All') {

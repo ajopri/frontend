@@ -35,8 +35,7 @@ export default function Activate() {
     }, [router.query.email])
 
     return (
-        <>
-            <Authlayout pageTitle="Activate">
+        <Authlayout pageTitle="Activate">
                 {/* content */}
                 <div className="flex flex-col px-10 w-96 sm:px-0">
                     {/* title */}
@@ -117,6 +116,5 @@ export default function Activate() {
                 </div>
                 {/* end content */}
             </Authlayout>
-        </>
     )
 }

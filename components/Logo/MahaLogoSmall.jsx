@@ -3,8 +3,6 @@ import MahaLogoSmall from '../../public/maha-logo-small.png'
 
 export default function Mahalogosmall({ width, height }) {
     return (
-        <>
-            <Image src={MahaLogoSmall} width={width} height={height} />
-        </>
+        <Image src={MahaLogoSmall} width={width} height={height} />
     )
 }

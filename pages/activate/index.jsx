@@ -2,12 +2,12 @@ import Authlayout from '@components/Layouts/AuthLayout'
 import Primarybutton from '@components/Button/PrimaryButton'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useAuth } from '@/hooks/auth'
 import { useState, useEffect } from 'react'
-import Authsessionstatus from '@/components/Layouts/AuthSessionStatus'
-import Authvalidationerrors from '@/components/Layouts/AuthValidationErrors'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFan } from '@fortawesome/free-solid-svg-icons'
+import { useAuth } from '@/hooks/auth'
+import Authsessionstatus from '@/components/Layouts/AuthSessionStatus'
+import Authvalidationerrors from '@/components/Layouts/AuthValidationErrors'
 
 export default function Activate() {
     const router = useRouter()
@@ -39,8 +39,7 @@ export default function Activate() {
     }, [router.query.email])
 
     return (
-        <>
-            <Authlayout pageTitle="Activate">
+        <Authlayout pageTitle="Activate">
                 {/* content */}
                 <div className="flex flex-col px-10 w-96 sm:px-0">
                     {/* title */}
@@ -132,6 +131,5 @@ export default function Activate() {
                 </div>
                 {/* end content */}
             </Authlayout>
-        </>
     )
 }

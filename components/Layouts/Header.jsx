@@ -7,8 +7,8 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAuth } from 'hooks/auth'
 import { useState } from 'react'
-import { DropdownButton } from '@/components/Button/Dropdown'
 import { Tooltip } from '@nextui-org/react'
+import { DropdownButton } from '@/components/Button/Dropdown'
 
 export default function Header({ user }) {
     const today = new Date()

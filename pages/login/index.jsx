@@ -6,25 +6,25 @@ import Input from '@components/Inputs/Input'
 import { useEffect, useState } from 'react'
 import Authsessionstatus from '@components/Layouts/AuthSessionStatus'
 import Authvalidationerrors from '@components/Layouts/AuthValidationErrors'
-import { useAuth } from '@/hooks/auth'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFan } from '@fortawesome/free-solid-svg-icons'
+import { useAuth } from '@/hooks/auth'
 
 export default function Login() {
     const router = useRouter()
 
-    // Auth hook
-    const { login, sapToken } = useAuth({
-        middleware: 'guest',
-        redirectIfAuthenticated: '/dashboard',
-    })
-
-    //States
+    // States
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [errors, setErrors] = useState([])
     const [status, setStatus] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
+    
+    // Auth hook
+    const { login, sapToken } = useAuth({
+        middleware: 'guest',
+        redirectIfAuthenticated: '/dashboard',
+    })
 
     useEffect(() => {
         if (router.query.reset?.length > 0 && errors.length === 0) {
@@ -34,7 +34,7 @@ export default function Login() {
         }
     })
 
-    //Form submit
+    // Form submit
     const submitForm = async event => {
         event.preventDefault()
         setIsLoading(true)
