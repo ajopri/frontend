@@ -19,7 +19,7 @@ export default function Login() {
     const [errors, setErrors] = useState([])
     const [status, setStatus] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
-    
+
     // Auth hook
     const { login, sapToken } = useAuth({
         middleware: 'guest',
@@ -32,7 +32,7 @@ export default function Login() {
         } else {
             setStatus(null)
         }
-    })
+    }, [errors.length, router.query.reset])
 
     // Form submit
     const submitForm = async event => {

@@ -1,9 +1,9 @@
 import useSWR from 'swr'
-import axios from '@/lib/axios'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Cookies from 'js-cookie'
 import Axios from 'axios'
+import axios from '@/lib/axios'
 
 export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     const router = useRouter()
@@ -26,7 +26,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     // GET CSRF
     const csrf = () => axios.get('/sanctum/csrf-cookie')
 
-    //Register
+    // Register
     const register = async ({ setErrors, ...props }) => {
         await csrf()
 
@@ -42,7 +42,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             })
     }
 
-    //set Token SAP
+    // set Token SAP
     const sapToken = async ({ setErrors, setStatus }) => {
         const sapURL = process.env.NEXT_PUBLIC_SAP_API_URL
         const usernameSAP = process.env.NEXT_PUBLIC_SAP_USERNAME
@@ -58,7 +58,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
                 password: passwordSAP,
             })
             .then(res => {
-                Cookies.set('sap_token', res.data.token, res.data.expire)
+                Cookies.set('SAP-TOKEN', res.data.token, res.data.expire)
             })
             .catch(error => {
                 if (error.response.status !== 422) throw error
@@ -79,6 +79,10 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             axios
                 .post('/login', props)
                 .then(() => mutate())
+                .then(res => {
+                    Cookies.set('rcc', res.group.rcc, { expires: 1 })
+                    Cookies.set('custgroup', res.group.name, { expires: 1 })
+                })
                 .catch(error => {
                     if (error.response.status !== 422) throw error
 
@@ -100,7 +104,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
         }
     }
 
-    //Forgot password
+    // Forgot password
     const forgotPassword = async ({ setErrors, setStatus, email }) => {
         await csrf()
 
@@ -117,7 +121,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             })
     }
 
-    //Reset password
+    // Reset password
     const resetPassword = async ({ setErrors, setStatus, ...props }) => {
         await csrf()
 
@@ -127,23 +131,23 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
         axios
             .post('/reset-password', { token: router.query.token, ...props })
             .then(response =>
-                router.push('/login?reset=' + btoa(response.data.status)),
+                router.push(`/login?reset=${btoa(response.data.status)}`),
             )
             .catch(error => {
-                if (error.response.status != 422) throw error
+                if (error.response.status !== 422) throw error
 
                 setErrors(Object.values(error.response.data.errors).flat())
             })
     }
 
-    //Verify email
+    // Verify email
     const resendEmailVerification = ({ setStatus }) => {
         axios
             .post('/email/verification-notification')
             .then(response => setStatus(response.data.status))
     }
 
-    //activate account
+    // activate account
     const activateAccount = async ({
         setErrors,
         setStatus,
@@ -161,23 +165,26 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
                 ...props,
             })
             .then(response =>
-                router.push('/login?reset=' + btoa(response.data.status)),
+                router.push(`/login?reset=${btoa(response.data.status)}`),
             )
             .catch(error => {
-                if (error.response.status != 422) throw error
+                if (error.response.status !== 422) throw error
                 setErrors(Object.values(error.response.data).flat())
                 setIsLoading(false)
             })
     }
 
-    //Logout
-    const logout = async () => {
+    // Logout
+    const logout = useCallback(async () => {
         if (!error) {
             await axios.post('/logout').then(() => mutate())
+            Cookies.remove('SAP-TOKEN')
+            Cookies.remove('rcc')
+            Cookies.remove('custgroup')
         }
 
         window.location.pathname = '/login'
-    }
+    })
 
     useEffect(() => {
         if (middleware === 'guest' && redirectIfAuthenticated && user)

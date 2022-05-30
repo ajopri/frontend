@@ -34,8 +34,8 @@ export default function Login() {
             setStatus(null)
         }
 
-        if(router.query.admin === 'admin') setIsAdmin(true)
-    })
+        if (router.query.admin === 'admin') setIsAdmin(true)
+    }, [errors, router])
 
     // Form submit
     const submitForm = async event => {

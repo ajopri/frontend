@@ -14,7 +14,5 @@ Router.events.on('routeChangeComplete', progress.finish)
 Router.events.on('routeChangeError', progress.finish)
 
 export default function MyApp({ Component, pageProps }) {
-    return (
-        <Component {...pageProps} />
-    )
+    return <Component {...pageProps} />
 }

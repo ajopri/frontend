@@ -22,8 +22,7 @@ export default function Activated() {
                 </div>
                 <div className="sm:w-[21rem] w-fit">
                     <div className="mb-6">
-                        <Primarybutton
-                            onClick={() => router.push('/login')}>
+                        <Primarybutton onClick={() => router.push('/login')}>
                             continue
                         </Primarybutton>
                     </div>

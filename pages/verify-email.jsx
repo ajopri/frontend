@@ -27,7 +27,8 @@ function VerifyEmail() {
             )}
 
             <div className="flex items-center justify-between mt-4">
-                <Primarybutton onClick={() => resendEmailVerification({ setStatus })}>
+                <Primarybutton
+                    onClick={() => resendEmailVerification({ setStatus })}>
                     Resend Verification Email
                 </Primarybutton>
 

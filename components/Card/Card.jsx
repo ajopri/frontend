@@ -3,7 +3,7 @@ export default function Card({
     additionalInnerClasses,
     children,
 }) {
-    const outerClasses = `card w-full rounded-md bg-white border-[1px] p-3 ${additionalWrapperClasses}`
+    const outerClasses = `card w-full h-fit rounded-md bg-white border-[1px] p-3 ${additionalWrapperClasses}`
     const innerClasses = `max-w-full h-full mx-auto flex flex-col ${additionalInnerClasses}`
 
     return (
