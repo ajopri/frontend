@@ -17,6 +17,7 @@ import Card from '@/components/Card/Card'
 import useSAP from '@/lib/sap'
 import Searchinput from '@/components/Inputs/SearchInput'
 import Mainlayout from '@/components/Layouts/MainLayout'
+import Processing from '@/components/Layouts/Processing'
 
 const renderDue = val => (
     <span
@@ -36,7 +37,7 @@ function LinkDownload({ link, label }) {
     if (link) {
         return (
             <Link href={link} passHref>
-                <span className="px-2 py-1 font-semibold text-green-700 bg-green-100 rounded cursor-pointer whitespace-nowrap">
+                <span className="px-2 py-1 font-semibold text-green-700 bg-green-100 rounded cursor-pointer whitespace-nowrap hidden group-hover:block">
                     <FontAwesomeIcon icon={faEnvelope} /> {label}
                 </span>
             </Link>
@@ -45,7 +46,7 @@ function LinkDownload({ link, label }) {
 }
 
 function Account({ detail, loading }) {
-    if (loading) return <p className="p-4 mx-auto">Loading...</p>
+    if (loading) return <Processing />
     if (!detail) return <p>No data</p>
     return (
         <>
@@ -173,7 +174,7 @@ function Item({ data }) {
 
     return (
         <>
-            <tr key={data.itemCode} className="hover:bg-gray-100">
+            <tr key={data.itemCode} className="hover:bg-gray-100 group">
                 <td className="px-6 py-1.5 text-left">
                     <Tooltip content="Details" placement="left">
                         <button
@@ -208,7 +209,7 @@ function Item({ data }) {
                 <td className="px-6 py-1.5 text-left">
                     {data.amountDue.toLocaleString()}
                 </td>
-                <td className="whitespace-nowrap px-6 py-1.5 text-left">
+                <td className="whitespace-nowrap px-6 py-1.5 text-center">
                     <LinkDownload link="#" label="REQUEST INVOICE" />{' '}
                 </td>
             </tr>
@@ -222,7 +223,7 @@ function Item({ data }) {
 }
 
 function Listinvoices({ datas, loading }) {
-    if (loading) return <p className="p-4 mx-auto">Loading...</p>
+    if (loading) return <Processing />
     if (!datas) return <p>No data</p>
     return (
         <div className="flex h-[64vh] flex-col rounded-lg">
@@ -266,8 +267,13 @@ function Listinvoices({ datas, loading }) {
 }
 
 export default function Invoices() {
+    const rcc = Cookies.get('rcc')
+    const custgroup = Cookies.get('custgroup')
+
     const [openTab, setOpenTab] = useState(1)
     const [openStateTab, setOpenStateTab] = useState(null)
+
+    const [creditTerms, setCreditTerms] = useState(0)
 
     const [sumOverdue, setSumOverdue] = useState(0)
     const [sumOutstanding, setSumOutstanding] = useState(0)
@@ -289,7 +295,7 @@ export default function Invoices() {
     const [filteredPaid, setFilteredPaid] = useState([])
 
     // GET data Outstanding
-    async function fetchDataOutstanding({ rcc, custgroup }) {
+    async function fetchDataOutstanding() {
         setIsLoadingOutstanding(true)
         const response = await useSAP.get(`/Invoices/GetOutstandingPayables`, {
             params: {
@@ -302,11 +308,12 @@ export default function Invoices() {
         setSumOverdue(data[0].overdue)
         setSumOutstanding(data[0].outstanding)
         setOpenStateTab(data[0].details[0].currency)
+        setCreditTerms(data[0].creditTerms)
         setIsLoadingOutstanding(false)
     }
 
     // GET data Invoices
-    async function fetchDataInvoices({ rcc, custgroup }) {
+    async function fetchDataInvoices() {
         setIsLoadingInvoice(true)
         const response = await useSAP.get(`/Invoices/GetAllInvoices`, {
             params: {
@@ -340,10 +347,8 @@ export default function Invoices() {
     }
 
     useEffect(() => {
-        const rcc = Cookies.get('rcc')
-        const custgroup = Cookies.get('custgroup')
-        fetchDataOutstanding({ rcc, custgroup })
-        fetchDataInvoices({ rcc, custgroup })
+        fetchDataOutstanding()
+        fetchDataInvoices()
     }, [])
 
     const searchItems = e => {
@@ -399,11 +404,10 @@ export default function Invoices() {
             in both local and US currency.
         </div>
     )
-
     return (
         <Mainlayout pageTitle="Invoices">
             <Maintitle title="Invoices" />
-            <div className="flex gap-2">
+            <div className="flex space-x-3">
                 {/* left column */}
                 <div className="flex flex-col flex-wrap w-full space-y-3 sm:w-5/6 sm:flex-nowrap">
                     <div className="flex flex-wrap space-x-3 sm:flex-nowrap">
@@ -416,8 +420,8 @@ export default function Invoices() {
                             <div className="flex flex-wrap space-x-3 sm:flex-nowrap">
                                 <div className="w-full sm:w-1/3">
                                     {/* Credit terms */}
-                                    <Card additionalInnerClasses="h-[3.8rem]">
-                                        <div className="flex justify-center w-full my-auto space-x-4">
+                                    <Card>
+                                        <div className="flex justify-center w-full my-auto space-x-4 py-[0.4rem]">
                                             <span className="px-3 py-3 rounded-full bg-maha-500 bg-opacity-10 text-maha-500">
                                                 <FontAwesomeIcon
                                                     icon={faMoneyCheckAlt}
@@ -429,8 +433,8 @@ export default function Invoices() {
                                                 <div className="text-xs font-light text-gray-500">
                                                     Credit Terms
                                                 </div>
-                                                <div className="text-2xl font-bold">
-                                                    90 days
+                                                <div className="text-2xl font-bold capitalize">
+                                                    {String(creditTerms)}
                                                 </div>
                                             </div>
                                         </div>
@@ -438,10 +442,10 @@ export default function Invoices() {
                                 </div>
                                 <div className="w-full sm:w-2/3">
                                     {/* Overdue & Outstanding */}
-                                    <Card additionalInnerClasses="h-[3.8rem]">
+                                    <Card>
                                         <div className="flex items-center col-span-2 my-auto">
                                             {/* Overdue */}
-                                            <div className="flex w-full justify-center space-x-4 border-r-[1px] border-gray-300">
+                                            <div className="flex w-full justify-center space-x-4 border-r-[1px] border-gray-300 py-[0.4rem]">
                                                 <span className="px-3 py-3 text-red-600 bg-red-100 rounded-full">
                                                     <FontAwesomeIcon
                                                         icon={
@@ -461,7 +465,7 @@ export default function Invoices() {
                                                 </div>
                                             </div>
                                             {/* Outstanding */}
-                                            <div className="flex w-full justify-center space-x-4 border-l-[1px] border-gray-300">
+                                            <div className="flex w-full justify-center space-x-4 border-l-[1px] border-gray-300 py-[0.4rem]">
                                                 <span className="px-3 py-3 text-orange-600 bg-orange-100 rounded-full">
                                                     <FontAwesomeIcon
                                                         icon={faMoneyCheckAlt}
@@ -549,11 +553,12 @@ export default function Invoices() {
                                     ))}
                                 </ul>
                                 <div>
-                                    <span className="absolute text-gray-300 transform translate-y-1/2 pointer-events-none">
+                                    <span className="absolute text-gray-300 transform translate-y-1/2 pointer-events-none text-xs">
                                         <FontAwesomeIcon icon={faSearch} />
                                     </span>
                                     <Searchinput
                                         placeholder="Search"
+                                        className="text-xs"
                                         onChange={e => searchItems(e)}
                                     />
                                 </div>
@@ -595,7 +600,7 @@ export default function Invoices() {
                             width: 'fit-content',
                         }}
                     />
-                    <div className="flex flex-wrap h-full space-x-3 sm:flex-nowrap">
+                    <div className="flex flex-wrap h-max space-x-3 sm:flex-nowrap">
                         <Card>
                             <div className="flex items-center justify-between">
                                 <ul

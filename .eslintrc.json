@@ -47,6 +47,8 @@
         "array-callback-return": "off",
         "react/no-unescaped-entities": "off",
         "react/jsx-no-useless-fragment": "off",
-        "react/no-unknown-property": "off"
+        "react/no-unknown-property": "off",
+        "no-shadow": "off",
+        "no-use-before-define": "off"
     }
 }

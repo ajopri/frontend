@@ -16,7 +16,7 @@ export default function Mainlayout({ children, pageTitle }) {
                 <Sidebar />
                 <div className="flex flex-col w-full">
                     <Header user={user} />
-                    <div className="container flex flex-col h-full px-4 py-4 mx-auto bg-content">
+                    <div className="container flex flex-col h-fit px-4 py-4 mx-auto bg-content">
                         {children}
                     </div>
                 </div>

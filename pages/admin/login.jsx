@@ -34,7 +34,7 @@ export default function Login() {
             setStatus(null)
         }
 
-        if (router.query.admin === 'admin') setIsAdmin(true)
+        setIsAdmin(true)
     }, [errors, router])
 
     // Form submit

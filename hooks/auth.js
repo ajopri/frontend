@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 import useSWR from 'swr'
 import { useCallback, useEffect } from 'react'
 import { useRouter } from 'next/router'
@@ -74,7 +75,6 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
 
         setErrors([])
         setStatus(null)
-
         if (!props.isAdmin) {
             axios
                 .post('/login', props)
@@ -84,7 +84,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
                     Cookies.set('custgroup', res.group.name, { expires: 1 })
                 })
                 .catch(error => {
-                    if (error.response.status !== 422) throw error
+                    // if (error.response.status !== 422) throw error
 
                     setErrors(Object.values(error.response.data.errors).flat())
 
@@ -92,7 +92,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
                 })
         } else {
             axios
-                .post('/api/login/admin', props)
+                .post('/admin/login', props)
                 .then(() => mutate())
                 .catch(error => {
                     if (error.response.status !== 422) throw error

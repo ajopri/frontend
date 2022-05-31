@@ -10,7 +10,9 @@ import { Tooltip } from '@nextui-org/react'
 import ReactCountryFlag from 'react-country-flag'
 import dynamic from 'next/dynamic'
 import Cookies from 'js-cookie'
+import { useRouter } from 'next/router'
 import useSAP from '@/lib/sap'
+import Processing from '@/components/Layouts/Processing'
 
 const Bar = dynamic(() => import('@/components/Graph/Bar'), {
     ssr: false,
@@ -185,10 +187,10 @@ function Items({ data }) {
 }
 
 function Orders({ datas, loading }) {
-    if (loading) return <p className="p-4 mx-auto">Loading...</p>
+    if (loading) return <Processing />
     if (!datas) return <p>No data</p>
     return (
-        <div className="flex h-[64vh] flex-col rounded-lg pt-2">
+        <div className="flex h-[65vh] flex-col rounded-lg pt-2">
             <div className="flex-grow overflow-auto rounded-md border-[1px]">
                 <table className="relative w-full text-xs">
                     <thead>
@@ -227,7 +229,7 @@ function Orders({ datas, loading }) {
 }
 
 function Account({ detail, loading }) {
-    if (loading) return <p className="p-4 mx-auto">Loading...</p>
+    if (loading) return <Processing />
     if (!detail) return <p>No data</p>
     return (
         <>
@@ -256,7 +258,7 @@ function Account({ detail, loading }) {
 }
 
 function TableInv({ invoices, loading }) {
-    if (loading) return <p className="p-4 mx-auto">Loading...</p>
+    if (loading) return <Processing />
     if (!invoices) return <p>No data</p>
     const renderCell = val => (
         <span
@@ -337,6 +339,11 @@ function TableInv({ invoices, loading }) {
 }
 
 export default function Index() {
+    const router = useRouter()
+
+    const rcc = Cookies.get('rcc')
+    const custgroup = Cookies.get('custgroup')
+
     const [openTab, setOpenTab] = useState(1)
 
     const [openPO, setOpenPO] = useState([])
@@ -353,7 +360,7 @@ export default function Index() {
     const [isLoadingInvoice, setIsLoadingInvoice] = useState(false)
 
     // GET data Open PO
-    async function fetchDataOpenPO({ rcc, custgroup }) {
+    async function fetchDataOpenPO() {
         setIsLoadingOpenPO(true)
         const response = await useSAP.get(`/DashboardDRM/GetOpenPO`, {
             params: {
@@ -373,7 +380,7 @@ export default function Index() {
     }
 
     // GET data Outstanding
-    async function fetchDataOutstanding({ rcc, custgroup }) {
+    async function fetchDataOutstanding() {
         setIsLoadingOutstanding(true)
         const response = await useSAP.get(`/Invoices/GetOutstandingPayables`, {
             params: {
@@ -387,7 +394,7 @@ export default function Index() {
     }
 
     // GET data Payable by age
-    async function fetchDataPayable({ rcc, custgroup }) {
+    async function fetchDataPayable() {
         setIsLoadingPayable(true)
         const response = await useSAP.get(`/DashboardDRM/GetPayableByAge`, {
             params: {
@@ -402,7 +409,7 @@ export default function Index() {
     }
 
     // GET data Invoices
-    async function fetchDataInvoices({ rcc, custgroup }) {
+    async function fetchDataInvoices() {
         setIsLoadingInvoice(true)
         const response = await useSAP.get(`/DashboardDRM/GetOpenInvoices`, {
             params: {
@@ -416,13 +423,10 @@ export default function Index() {
     }
 
     useEffect(() => {
-        const rcc = Cookies.get('rcc')
-        const custgroup = Cookies.get('custgroup')
-
-        fetchDataOpenPO({ rcc, custgroup })
-        fetchDataOutstanding({ rcc, custgroup })
-        fetchDataPayable({ rcc, custgroup })
-        fetchDataInvoices({ rcc, custgroup })
+        fetchDataOpenPO()
+        fetchDataOutstanding()
+        fetchDataPayable()
+        fetchDataInvoices()
     }, [])
 
     const searchItems = e => {
@@ -498,6 +502,11 @@ export default function Index() {
             },
         ]
     }
+
+    useEffect(() => {
+        // Prefetch the dashboard page
+        router.prefetch('/dashboard')
+    }, [])
 
     return (
         <Mainlayout pageTitle="Dashboard">
@@ -602,90 +611,98 @@ export default function Index() {
                             </div>
                             {/* Tabs */}
                             <div>
-                                <div className="w-full">
-                                    <ul
-                                        className="flex flex-row flex-wrap pt-3 pb-2 mb-0 list-none"
-                                        role="tablist">
-                                        <li className="flex-auto -mb-px text-center last:mr-0">
-                                            <a
-                                                className={`block px-5 py-3 text-xs font-bold uppercase leading-normal ${
-                                                    openTabBar ===
-                                                    payable.foreignCurrency
-                                                        ? 'rounded-tr-md rounded-tl-md border-b-2 border-maha-500 bg-maha-500 text-white'
-                                                        : 'border-b-2 border-maha-500 bg-white text-gray-500'
-                                                }`}
-                                                onClick={e => {
-                                                    e.preventDefault()
-                                                    setOpenTabBar(
-                                                        payable.foreignCurrency,
-                                                    )
-                                                }}
-                                                data-toggle="tab"
-                                                href={`#${payable.foreignCurrency}`}
-                                                role="tablist">
-                                                {payable.foreignCurrency}
-                                            </a>
-                                        </li>
-                                        <li className="flex-auto -mb-px text-center last:mr-0">
-                                            <a
-                                                className={`block px-5 py-3 text-xs font-bold uppercase leading-normal ${
-                                                    openTabBar ===
-                                                    payable.localCurrency
-                                                        ? 'rounded-tr-md rounded-tl-md border-b-2 border-maha-500 bg-maha-500 text-white'
-                                                        : 'border-b-2 border-maha-500 bg-white text-gray-500'
-                                                }`}
-                                                onClick={e => {
-                                                    e.preventDefault()
-                                                    setOpenTabBar(
-                                                        payable.localCurrency,
-                                                    )
-                                                }}
-                                                data-toggle="tab"
-                                                href={`#${payable.localCurrency}`}
-                                                role="tablist">
-                                                {payable.localCurrency}
-                                            </a>
-                                        </li>
-                                    </ul>
-                                    <div className="relative flex flex-col w-full min-w-0 mb-2 break-words bg-white ">
-                                        <div className="flex-auto">
-                                            <div className="tab-content tab-space">
-                                                <div
-                                                    className={
+                                {!isLoadingPayable ? (
+                                    <div className="w-full">
+                                        <ul
+                                            className="flex flex-row flex-wrap pt-3 pb-2 mb-0 list-none"
+                                            role="tablist">
+                                            <li className="flex-auto -mb-px text-center last:mr-0">
+                                                <a
+                                                    className={`block px-5 py-3 text-xs font-bold uppercase leading-normal ${
+                                                        openTabBar ===
+                                                        payable.foreignCurrency
+                                                            ? 'rounded-tr-md rounded-tl-md border-b-2 border-maha-500 bg-maha-500 text-white'
+                                                            : 'border-b-2 border-maha-500 bg-white text-gray-500'
+                                                    }`}
+                                                    onClick={e => {
+                                                        e.preventDefault()
+                                                        setOpenTabBar(
+                                                            payable.foreignCurrency,
+                                                        )
+                                                    }}
+                                                    data-toggle="tab"
+                                                    href={`#${payable.foreignCurrency}`}
+                                                    role="tablist">
+                                                    {payable.foreignCurrency}
+                                                </a>
+                                            </li>
+                                            <li className="flex-auto -mb-px text-center last:mr-0">
+                                                <a
+                                                    className={`block px-5 py-3 text-xs font-bold uppercase leading-normal ${
                                                         openTabBar ===
                                                         payable.localCurrency
-                                                            ? 'block'
-                                                            : 'hidden'
-                                                    }
-                                                    id={payable.localCurrency}>
-                                                    <Bar
-                                                        datas={LC}
-                                                        cur={
+                                                            ? 'rounded-tr-md rounded-tl-md border-b-2 border-maha-500 bg-maha-500 text-white'
+                                                            : 'border-b-2 border-maha-500 bg-white text-gray-500'
+                                                    }`}
+                                                    onClick={e => {
+                                                        e.preventDefault()
+                                                        setOpenTabBar(
+                                                            payable.localCurrency,
+                                                        )
+                                                    }}
+                                                    data-toggle="tab"
+                                                    href={`#${payable.localCurrency}`}
+                                                    role="tablist">
+                                                    {payable.localCurrency}
+                                                </a>
+                                            </li>
+                                        </ul>
+                                        <div className="relative flex flex-col w-full min-w-0 mb-2 break-words bg-white ">
+                                            <div className="flex-auto">
+                                                <div className="tab-content tab-space">
+                                                    <div
+                                                        className={
+                                                            openTabBar ===
                                                             payable.localCurrency
+                                                                ? 'block'
+                                                                : 'hidden'
                                                         }
-                                                    />
-                                                </div>
-                                                <div
-                                                    className={
-                                                        openTabBar ===
-                                                        payable.foreignCurrency
-                                                            ? 'block'
-                                                            : 'hidden'
-                                                    }
-                                                    id={
-                                                        payable.foreignCurrency
-                                                    }>
-                                                    <Bar
-                                                        datas={FC}
-                                                        cur={
+                                                        id={
+                                                            payable.localCurrency
+                                                        }>
+                                                        <Bar
+                                                            datas={LC}
+                                                            cur={
+                                                                payable.localCurrency
+                                                            }
+                                                        />
+                                                    </div>
+                                                    <div
+                                                        className={
+                                                            openTabBar ===
                                                             payable.foreignCurrency
+                                                                ? 'block'
+                                                                : 'hidden'
                                                         }
-                                                    />
+                                                        id={
+                                                            payable.foreignCurrency
+                                                        }>
+                                                        <Bar
+                                                            datas={FC}
+                                                            cur={
+                                                                payable.foreignCurrency
+                                                            }
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                ) : (
+                                    <div className="flex items-center py-3 text-xs">
+                                        loading bar chart...
+                                    </div>
+                                )}
                             </div>
 
                             {/* Open Invoices */}

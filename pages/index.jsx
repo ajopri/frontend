@@ -31,7 +31,7 @@ export default function Home() {
                         <Button
                             type="button"
                             className="px-3 py-2 text-sm font-semibold bg-white rounded-md text-maha-500 hover:bg-maha-green-400 hover:text-white"
-                            onClick={() => router.push('/login/admin')}>
+                            onClick={() => router.push('/admin/login')}>
                             admin
                         </Button>
                     </div>

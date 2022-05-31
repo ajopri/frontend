@@ -17,6 +17,7 @@ import Mainlayout from '@/components/Layouts/MainLayout'
 import Card from '@/components/Card/Card'
 import useSAP from '@/lib/sap'
 import Maintitle from '@/components/Typography/MainTitle'
+import Processing from '@/components/Layouts/Processing'
 
 const tooltips = (
     <span>
@@ -72,7 +73,7 @@ function renderDateReceive(str) {
 
 // Order by item start
 function OrderByPo({ items, loading }) {
-    if (loading) return <p className="p-4 mx-auto">Loading...</p>
+    if (loading) return <Processing />
     if (!items) return <p>No data</p>
 
     const [isExpanded, setIsExpanded] = useState(false)
@@ -244,7 +245,7 @@ function OrderDetailByPo({ parentExpanded, details }) {
 
 // Order by item start
 function OrderByItem({ items, loading }) {
-    if (loading) return <p className="p-4 mx-auto">Loading...</p>
+    if (loading) return <Processing />
     if (!items) return <p>No data</p>
     return (
         <div className="flex h-[64vh] flex-col rounded-lg">
@@ -420,7 +421,7 @@ function OrderDetailByItem({ parentExpanded, details }) {
 // Order by item end
 
 function Summary({ sum, loading }) {
-    if (loading) return <p className="p-4 mx-auto">Loading...</p>
+    if (loading) return <Processing />
     if (!sum) return <p>No data</p>
     const summary = sum
     // console.log(summary.unfulfilled)
@@ -485,6 +486,9 @@ function Summary({ sum, loading }) {
 }
 
 export default function OrderManagement() {
+    const rcc = Cookies.get('rcc')
+    const custgroup = Cookies.get('custgroup')
+
     const [orderByPo, setOrderByPo] = useState([])
     const [isLoadingByPo, setIsLoadingByPo] = useState(false)
 
@@ -519,7 +523,7 @@ export default function OrderManagement() {
     }
 
     // GET data order by PO
-    async function fetchDataByPO({ rcc, custgroup }) {
+    async function fetchDataByPO() {
         setIsLoadingByPo(true)
         const response = await useSAP.get(`/Orders/GetOrdersByPo`, {
             params: {
@@ -534,7 +538,7 @@ export default function OrderManagement() {
     }
 
     // GET data order by Item
-    async function fetchDataByItem({ rcc, custgroup }) {
+    async function fetchDataByItem() {
         setIsLoadingByItem(true)
         const response = await useSAP.get(`/Orders/GetOrdersByItem`, {
             params: {
@@ -549,10 +553,8 @@ export default function OrderManagement() {
     }
 
     useEffect(() => {
-        const rcc = Cookies.get('rcc')
-        const custgroup = Cookies.get('custgroup')
-        fetchDataByPO({ rcc, custgroup })
-        fetchDataByItem({ rcc, custgroup })
+        fetchDataByPO()
+        fetchDataByItem()
     }, [])
 
     return (
