@@ -24,7 +24,7 @@ export default function Login() {
     // Auth hook
     const { login, sapToken } = useAuth({
         middleware: 'guest',
-        redirectIfAuthenticated: '/admin/dashboard',
+        redirectIfAuthenticated: '/admin/manage-users',
     })
 
     useEffect(() => {

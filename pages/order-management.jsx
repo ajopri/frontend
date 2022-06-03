@@ -18,6 +18,7 @@ import Card from '@/components/Card/Card'
 import useSAP from '@/lib/sap'
 import Maintitle from '@/components/Typography/MainTitle'
 import Processing from '@/components/Layouts/Processing'
+import BtnAccordion from '@/components/Button/BtnAccordion'
 
 const tooltips = (
     <span>
@@ -44,7 +45,7 @@ function LinkDownload({ link, label }) {
     if (link) {
         return (
             <Link href={link} passHref>
-                <span className="px-2 py-1 font-semibold text-green-700 bg-green-100 rounded cursor-pointer whitespace-nowrap">
+                <span className="px-2 py-1 font-semibold text-green-dark bg-green-light rounded cursor-pointer whitespace-nowrap">
                     <FontAwesomeIcon icon={faDownload} /> {label}
                 </span>
             </Link>
@@ -52,12 +53,16 @@ function LinkDownload({ link, label }) {
     }
 }
 
-function renderColor(str) {
-    const d = str.slice(0, 10)
-    const date = new Date(d)
+function renderColor(d, stat) {
+    const dt = d.slice(0, 10)
+    const date = new Date(dt)
     const today = new Date()
     const color = date > today ? 'text-maha-500 font-semibold' : ''
-    return color
+    if (stat) {
+        if (stat.toLowerCase() !== 'delivered') return color
+        return ''
+    }
+    return ''
 }
 
 function renderDateReceive(str) {
@@ -65,9 +70,9 @@ function renderDateReceive(str) {
     const date = new Date(d)
     const poDate = `${
         date.getDate() < 10 ? `0${date.getDate()}` : date.getDate()
-    }-${
+    }/${
         date.getMonth() < 9 ? `0${date.getMonth() + 1}` : date.getMonth() + 1
-    }-${date.getFullYear()}`
+    }/${date.getFullYear()}`
     return poDate
 }
 
@@ -121,22 +126,7 @@ function ItemByPo({ data }) {
         <>
             <tr key={data.poNumber} className="hover:bg-gray-100">
                 <td className="px-6 py-1.5 text-left">
-                    <Tooltip content="Details" placement="left">
-                        <button
-                            className={` inline-flex items-center rounded py-2 px-2 font-bold ${
-                                isExpanded
-                                    ? 'bg-green-400 text-white hover:bg-green-100 hover:text-gray-600'
-                                    : 'bg-gray-100 text-gray-400 hover:bg-gray-300'
-                            }`}
-                            onClick={handleClick}>
-                            <FontAwesomeIcon
-                                icon={faChevronDown}
-                                transform={
-                                    isExpanded ? { rotate: 180 } : { rotate: 0 }
-                                }
-                            />
-                        </button>
-                    </Tooltip>
+                    <BtnAccordion expand={isExpanded} onClick={handleClick} />
                 </td>
                 <td className="px-6 py-1.5 text-left">{data.poNumber}</td>
                 <td className="px-6 py-1.5 text-left">
@@ -175,9 +165,7 @@ function OrderDetailByPo({ parentExpanded, details }) {
         <tr>
             <td
                 colSpan={4}
-                className={`${
-                    !isExpanded ? 'hidden' : ''
-                } bg-green-50 py-2 px-5`}>
+                className={`${!isExpanded ? 'hidden' : ''} bg-table py-2 px-5`}>
                 <table className="w-full">
                     <thead>
                         <tr className="border-b-[1px] border-gray-200 bg-gray-50 text-left uppercase text-gray-400">
@@ -226,12 +214,21 @@ function OrderDetailByPo({ parentExpanded, details }) {
                                 <td
                                     className={`px-3 py-2 ${renderColor(
                                         detail.activityDate,
+                                        detail.activity,
                                     )}`}>
-                                    {`${renderDateReceive(
-                                        detail.activityDate,
-                                    )} - ${detail.activityQty}${detail.uoM} ${
-                                        detail.activity
-                                    }`}
+                                    {detail.activityDate.slice(0, 10) !==
+                                    '1900-01-01'
+                                        ? detail.activityDate.slice(0, 10) !==
+                                          '0001-01-01'
+                                            ? `${renderDateReceive(
+                                                  detail.activityDate,
+                                              )}-${Number(
+                                                  detail.activityQty,
+                                              ).toLocaleString()}${
+                                                  detail.uoM
+                                              } ${detail.activity}`
+                                            : '-'
+                                        : '-'}
                                 </td>
                             </tr>
                         ))}
@@ -287,22 +284,7 @@ function ItemsByItem({ data }) {
         <>
             <tr key={data.itemCode} className="hover:bg-gray-100">
                 <td className="px-6 py-1.5 text-left">
-                    <Tooltip content="Details" placement="left">
-                        <button
-                            className={` inline-flex items-center rounded py-2 px-2 font-bold ${
-                                isExpanded
-                                    ? 'bg-green-400 text-white hover:bg-green-100 hover:text-gray-600'
-                                    : 'bg-gray-100 text-gray-400 hover:bg-gray-300'
-                            }`}
-                            onClick={handleClick}>
-                            <FontAwesomeIcon
-                                icon={faChevronDown}
-                                transform={
-                                    isExpanded ? { rotate: 180 } : { rotate: 0 }
-                                }
-                            />
-                        </button>
-                    </Tooltip>
+                    <BtnAccordion expand={isExpanded} onClick={handleClick} />
                 </td>
                 <td className="px-6 py-1.5 text-left">{data.itemName}</td>
                 <td className="px-6 py-1.5 text-left">
@@ -342,9 +324,7 @@ function OrderDetailByItem({ parentExpanded, details }) {
         <tr>
             <td
                 colSpan={4}
-                className={`${
-                    !isExpanded ? 'hidden' : ''
-                } bg-green-50 py-2 px-5`}>
+                className={`${!isExpanded ? 'hidden' : ''} bg-table py-2 px-5`}>
                 <div className="rounded-sm border-[1px]">
                     <table className="w-full">
                         <thead>
@@ -402,12 +382,23 @@ function OrderDetailByItem({ parentExpanded, details }) {
                                     <td
                                         className={`px-3 py-2 ${renderColor(
                                             detail.activityDate,
+                                            detail.activity,
                                         )}`}>
-                                        {`${renderDateReceive(
-                                            detail.activityDate,
-                                        )} - ${detail.activityQty}${
-                                            detail.uoM
-                                        } ${detail.activity}`}
+                                        {detail.activityDate.slice(0, 10) !==
+                                        '1900-01-01'
+                                            ? detail.activityDate.slice(
+                                                  0,
+                                                  10,
+                                              ) !== '0001-01-01'
+                                                ? `${renderDateReceive(
+                                                      detail.activityDate,
+                                                  )}-${Number(
+                                                      detail.activityQty,
+                                                  ).toLocaleString()}${
+                                                      detail.uoM
+                                                  } ${detail.activity}`
+                                                : '-'
+                                            : '-'}
                                     </td>
                                 </tr>
                             ))}
@@ -426,58 +417,56 @@ function Summary({ sum, loading }) {
     const summary = sum
     // console.log(summary.unfulfilled)
     return (
-        <div className="basis-1/5 rounded-sm border-[1px] border-gray-50 bg-white py-2 px-3 shadow">
-            <div className="flex flex-col h-96 sm:h-full">
-                <div className="mx-4 flex h-1/4 flex-1 basis-1/4 items-center space-x-7 whitespace-nowrap border-b-[1px] border-gray-200 px-32 sm:px-0">
-                    <span className="rounded-full bg-red-100 px-3.5 py-3 text-red-600">
-                        <FontAwesomeIcon icon={faBoxOpen} fixedWidth />
-                    </span>
-                    <div>
-                        <div className="text-xs font-light text-gray-500">
-                            Unfulfilled
-                        </div>
-                        <div className="text-2xl font-bold">
-                            {summary.unfulfilled}
-                        </div>
+        <div className="flex flex-col h-96 sm:h-full">
+            <div className="mx-4 flex h-1/4 flex-1 basis-1/4 items-center space-x-7 whitespace-nowrap border-b-[1px] border-gray-200 px-32 sm:px-0">
+                <span className="rounded-full bg-red-100 px-3.5 py-3 text-red-600">
+                    <FontAwesomeIcon icon={faBoxOpen} fixedWidth />
+                </span>
+                <div>
+                    <div className="text-xs font-light text-gray-500">
+                        Unfulfilled
+                    </div>
+                    <div className="text-2xl font-bold">
+                        {summary.unfulfilled}
                     </div>
                 </div>
-                <div className="mx-4 flex h-1/4 flex-1 basis-1/4 items-center space-x-7 whitespace-nowrap border-b-[1px] border-gray-200 px-32 sm:px-0">
-                    <span className="rounded-full bg-maha-500 bg-opacity-10 px-3.5 py-3 text-maha-500">
-                        <FontAwesomeIcon icon={faCalendarWeek} fixedWidth />
-                    </span>
-                    <div>
-                        <div className="text-xs font-light text-gray-500">
-                            Scheduled
-                        </div>
-                        <div className="text-2xl font-bold">
-                            {summary.scheduled}
-                        </div>
+            </div>
+            <div className="mx-4 flex h-1/4 flex-1 basis-1/4 items-center space-x-7 whitespace-nowrap border-b-[1px] border-gray-200 px-32 sm:px-0">
+                <span className="rounded-full bg-maha-500 bg-opacity-10 px-3.5 py-3 text-maha-500">
+                    <FontAwesomeIcon icon={faCalendarWeek} fixedWidth />
+                </span>
+                <div>
+                    <div className="text-xs font-light text-gray-500">
+                        Scheduled
+                    </div>
+                    <div className="text-2xl font-bold">
+                        {summary.scheduled}
                     </div>
                 </div>
-                <div className="mx-4 flex h-1/4 flex-1 basis-1/4 items-center space-x-7 whitespace-nowrap border-b-[1px] border-gray-200 px-32 sm:px-0">
-                    <span className="rounded-full bg-orange-100 px-3.5 py-3 text-orange-600">
-                        <FontAwesomeIcon icon={faBoxes} fixedWidth />
-                    </span>
-                    <div>
-                        <div className="text-xs font-light text-gray-500">
-                            Partially Fulfilled
-                        </div>
-                        <div className="text-2xl font-bold">
-                            {summary.partially}
-                        </div>
+            </div>
+            <div className="mx-4 flex h-1/4 flex-1 basis-1/4 items-center space-x-7 whitespace-nowrap border-b-[1px] border-gray-200 px-32 sm:px-0">
+                <span className="rounded-full bg-orange-100 px-3.5 py-3 text-orange-600">
+                    <FontAwesomeIcon icon={faBoxes} fixedWidth />
+                </span>
+                <div>
+                    <div className="text-xs font-light text-gray-500">
+                        Partially Fulfilled
+                    </div>
+                    <div className="text-2xl font-bold">
+                        {summary.partially}
                     </div>
                 </div>
-                <div className="flex items-center flex-1 px-32 mx-4 h-1/4 basis-1/4 space-x-7 whitespace-nowrap sm:px-0">
-                    <span className="rounded-full bg-green-100 px-3.5 py-3 text-green-600">
-                        <FontAwesomeIcon icon={faCalendarCheck} fixedWidth />
-                    </span>
-                    <div>
-                        <div className="text-xs font-light text-gray-500">
-                            Fulfilled
-                        </div>
-                        <div className="text-2xl font-bold">
-                            {summary.fulfilled}
-                        </div>
+            </div>
+            <div className="flex items-center flex-1 px-32 mx-4 h-1/4 basis-1/4 space-x-7 whitespace-nowrap sm:px-0">
+                <span className="rounded-full bg-green-100 px-3.5 py-3 text-green-600">
+                    <FontAwesomeIcon icon={faCalendarCheck} fixedWidth />
+                </span>
+                <div>
+                    <div className="text-xs font-light text-gray-500">
+                        Fulfilled
+                    </div>
+                    <div className="text-2xl font-bold">
+                        {summary.fulfilled}
                     </div>
                 </div>
             </div>
@@ -571,6 +560,7 @@ export default function OrderManagement() {
             </div>
             {/* Order */}
             <div className="flex flex-col space-x-0 space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
+                {/* All Orders */}
                 <div className="basis-4/5">
                     <Card>
                         <div className="flex flex-wrap">
@@ -586,7 +576,7 @@ export default function OrderManagement() {
                                                 <a
                                                     className={`block space-x-2 px-3 py-3 text-xs font-bold leading-normal ${
                                                         openTab === 'item'
-                                                            ? `border-b-2 border-green-600 text-gray-600`
+                                                            ? `border-b-2 border-green-dark text-gray-600`
                                                             : `text-gray-400`
                                                     }`}
                                                     onClick={e => {
@@ -605,7 +595,7 @@ export default function OrderManagement() {
                                                     <span
                                                         className={`${
                                                             openTab === 'item'
-                                                                ? 'bg-green-50 text-green-600'
+                                                                ? 'bg-green-light text-green-dark'
                                                                 : 'bg-gray-100'
                                                         } rounded-md px-1 py-0.5`}>
                                                         {
@@ -618,7 +608,7 @@ export default function OrderManagement() {
                                                 <a
                                                     className={`block space-x-2 px-3 py-3 text-xs font-bold leading-normal ${
                                                         openTab === 'po'
-                                                            ? `border-b-2 border-green-600 text-gray-600`
+                                                            ? `border-b-2 border-green-dark text-gray-600`
                                                             : `text-gray-400`
                                                     }`}
                                                     onClick={e => {
@@ -637,7 +627,7 @@ export default function OrderManagement() {
                                                     <span
                                                         className={`${
                                                             openTab === 'po'
-                                                                ? 'bg-green-50 text-green-600'
+                                                                ? 'bg-green-light text-green-dark'
                                                                 : 'bg-gray-100'
                                                         } rounded-md px-1 py-0.5`}>
                                                         {filteredListPo.length}
@@ -660,7 +650,7 @@ export default function OrderManagement() {
                                                 id="search"
                                                 onChange={e => searchItems(e)}
                                                 placeholder="Search"
-                                                className="w-full px-3 py-2 placeholder-gray-300 border-b-2 border-gray-300 pl-7 focus:border-green-700 focus:outline-none focus:ring-0 "
+                                                className="w-full px-3 py-2 placeholder-gray-300 border-b-2 border-gray-300 pl-7 focus:border-green-dark focus:outline-none focus:ring-0 "
                                             />
                                         </div>
                                     </div>
@@ -695,7 +685,11 @@ export default function OrderManagement() {
                     </Card>
                 </div>
                 {/* Summary */}
-                <Summary sum={orderByPo[0]} loading={isLoadingByPo} />
+                <div className="basis-1/5">
+                    <Card additionalWrapperClasses="h-full">
+                        <Summary sum={orderByPo[0]} loading={isLoadingByPo} />
+                    </Card>
+                </div>
             </div>
         </Mainlayout>
     )

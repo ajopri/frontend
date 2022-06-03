@@ -1,4 +1,5 @@
 import {
+    faCheckCircle,
     faChevronDown,
     faEnvelope,
     faExclamationTriangle,
@@ -18,18 +19,22 @@ import useSAP from '@/lib/sap'
 import Searchinput from '@/components/Inputs/SearchInput'
 import Mainlayout from '@/components/Layouts/MainLayout'
 import Processing from '@/components/Layouts/Processing'
+import BtnAccordion from '@/components/Button/BtnAccordion'
 
-const renderDue = val => (
+const renderDue = (val, stat) => (
     <span
-        key={val}
         className={`${
-            val === 'Open'
-                ? 'text-blue-500'
-                : val === 'Scheduled'
-                ? 'text-maha-500'
-                : 'text-gray-500'
-        }  mr-1 rounded-md px-2 py-0.5 font-semibold`}>
-        {val}
+            stat.toLowerCase() === 'overdue'
+                ? 'text-red-500'
+                : stat.toLowerCase() === 'outstanding'
+                ? 'text-orange-500'
+                : 'text-green-dark'
+        }  mr-1 px-2 py-0.5 font-semibold`}>
+        {stat.toLowerCase() === 'paid' ? (
+            <FontAwesomeIcon icon={faCheckCircle} />
+        ) : (
+            `${val} ${val === 1 ? 'day' : 'days'}`
+        )}
     </span>
 )
 
@@ -37,7 +42,7 @@ function LinkDownload({ link, label }) {
     if (link) {
         return (
             <Link href={link} passHref>
-                <span className="px-2 py-1 font-semibold text-green-700 bg-green-100 rounded cursor-pointer whitespace-nowrap hidden group-hover:block">
+                <span className="px-2 py-1 font-semibold text-green-dark bg-green-light rounded cursor-pointer whitespace-nowrap hidden group-hover:block">
                     <FontAwesomeIcon icon={faEnvelope} /> {label}
                 </span>
             </Link>
@@ -81,9 +86,7 @@ function InvoiceDetails({ parentExpanded, details }) {
         <tr>
             <td
                 colSpan={8}
-                className={`${
-                    !isExpanded ? 'hidden' : ''
-                } bg-green-50 py-2 px-5`}>
+                className={`${!isExpanded ? 'hidden' : ''} bg-table py-2 px-5`}>
                 <div className="mx-auto w-fit rounded-sm border-[1px]">
                     <table className="w-full">
                         <thead>
@@ -167,7 +170,7 @@ function Item({ data }) {
         return (
             <span
                 className={`${className} mr-1 rounded-md border-[1px] px-2 py-0.5 font-semibold`}>
-                {stat}
+                {stat.charAt(0).toUpperCase() + stat.slice(1).toLowerCase()}
             </span>
         )
     }
@@ -176,22 +179,7 @@ function Item({ data }) {
         <>
             <tr key={data.itemCode} className="hover:bg-gray-100 group">
                 <td className="px-6 py-1.5 text-left">
-                    <Tooltip content="Details" placement="left">
-                        <button
-                            className={` inline-flex items-center rounded py-2 px-2 font-bold ${
-                                isExpanded
-                                    ? 'bg-green-400 text-white hover:bg-green-100 hover:text-gray-600'
-                                    : 'bg-gray-100 text-gray-400 hover:bg-gray-300'
-                            }`}
-                            onClick={handleClick}>
-                            <FontAwesomeIcon
-                                icon={faChevronDown}
-                                transform={
-                                    isExpanded ? { rotate: 180 } : { rotate: 0 }
-                                }
-                            />
-                        </button>
-                    </Tooltip>
+                    <BtnAccordion expand={isExpanded} onClick={handleClick} />
                 </td>
                 <td className="px-6 py-1.5 text-left">{data.invNumber}</td>
                 <td className="px-6 py-1.5 text-left">
@@ -204,10 +192,10 @@ function Item({ data }) {
                     {renderStatus(data.invStatus)}
                 </td>
                 <td className="px-6 py-1.5 text-left">
-                    {renderDue(data.dueIn)}
+                    {renderDue(data.dueIn, data.invStatus)}
                 </td>
                 <td className="px-6 py-1.5 text-left">
-                    {data.amountDue.toLocaleString()}
+                    {`${data.currency} ${data.amountDue.toLocaleString()}`}
                 </td>
                 <td className="whitespace-nowrap px-6 py-1.5 text-center">
                     <LinkDownload link="#" label="REQUEST INVOICE" />{' '}
@@ -250,9 +238,7 @@ function Listinvoices({ datas, loading }) {
                             <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100">
                                 amount due
                             </th>
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100">
-                                download
-                            </th>
+                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100" />
                         </tr>
                     </thead>
                     <tbody className="bg-white-100">
@@ -509,6 +495,7 @@ export default function Invoices() {
                     </div>
                     <div className="flex flex-wrap">
                         <Card additionalInnerClasses="space-y-3">
+                            {/* Tabs */}
                             <div className="flex items-center justify-between">
                                 <ul
                                     className="flex flex-row flex-wrap pb-2 mb-0 list-none"
@@ -529,7 +516,7 @@ export default function Invoices() {
                                             <a
                                                 className={`block px-4 py-2 text-xs font-bold capitalize leading-normal ${
                                                     openTab === idx
-                                                        ? 'rounded-tr-md rounded-tl-md border-b-2 border-maha-green-500 text-gray-700'
+                                                        ? 'rounded-tr-md rounded-tl-md border-b-2 border-green-dark text-gray-700'
                                                         : 'bg-white text-gray-400'
                                                 }`}
                                                 onClick={e => {
@@ -543,7 +530,7 @@ export default function Invoices() {
                                                 <span
                                                     className={`px-1 rounded ${
                                                         openTab === idx
-                                                            ? 'text-maha-green-500 bg-maha-green-100'
+                                                            ? 'text-green-dark bg-green-light'
                                                             : 'text-gray-500 bg-gray-100'
                                                     }`}>
                                                     {total}

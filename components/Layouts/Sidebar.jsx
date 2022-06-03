@@ -12,6 +12,7 @@ import { Tooltip } from '@nextui-org/react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
+import Mahalogo from '../Logo/MahaLogo'
 import Mahalogosmall from '../Logo/MahaLogoSmall'
 
 export default function Sidebar() {
@@ -44,7 +45,11 @@ export default function Sidebar() {
             </button>
             {/* Logo */}
             <div className="flex justify-center h-16 px-3 py-3">
-                <Mahalogosmall width={40} height={40} />
+                {!openSidebar ? (
+                    <Mahalogosmall width={40} height={40} />
+                ) : (
+                    <Mahalogo width={140} height={40} />
+                )}
             </div>
             {/* Navigation */}
             <nav

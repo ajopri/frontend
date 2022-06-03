@@ -29,6 +29,10 @@ module.exports = {
                     900: '#053403',
                 },
                 content: '#FBF9FA',
+                table: '#F1F5EB',
+                'btn-accordion': '#7DB737',
+                'green-light': '#DDEEC6',
+                'green-dark': '#2E6D11',
             },
             fontFamily: {
                 sans: ['Poppins', 'sans-serif'],

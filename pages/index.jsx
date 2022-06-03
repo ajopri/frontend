@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Button from '@/components/Button/Button'
-import Mahalogo from '@/components/Logo/MahaLogo'
+import MahaLogoWhite from '@/components/Logo/MahaLogoWhite'
 
 export default function Home() {
     const router = useRouter()
@@ -14,7 +14,7 @@ export default function Home() {
             <div className="flex min-h-screen bg-maha-500">
                 {/* Logo */}
                 <div className="flex flex-col items-center justify-center w-full">
-                    <Mahalogo width={400} height={100} />
+                    <MahaLogoWhite width={400} height={100} />
                     <div className="flex flex-row justify-center gap-3 pt-3">
                         <Button
                             type="button"

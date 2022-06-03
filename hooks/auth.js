@@ -84,9 +84,9 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
                     Cookies.set('custgroup', res.group.name, { expires: 1 })
                 })
                 .catch(error => {
-                    // if (error.response.status !== 422) throw error
+                    if (!error.response.success) throw error
 
-                    setErrors(Object.values(error.response.data.errors).flat())
+                    // setErrors(Object.values(error.response.data.errors).flat())
 
                     setIsLoading(false)
                 })

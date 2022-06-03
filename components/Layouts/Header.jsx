@@ -48,11 +48,6 @@ export default function Header({ user }) {
                         {formatDate(today)}
                     </div>
 
-                    {/* Notification */}
-                    <div className="px-4">
-                        <FontAwesomeIcon icon={faBell} />
-                    </div>
-
                     {/* navbar user */}
                     <div className="flex items-center pr-4 space-x-4">
                         <span className="px-3 py-2 bg-gray-100 rounded-full">

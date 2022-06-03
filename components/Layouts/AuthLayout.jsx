@@ -1,8 +1,8 @@
 import Head from 'next/head'
-import Image from 'next/image'
 import { useRouter } from 'next/router'
 import Button from '../Button/Button'
 import Countrydropdown from '../Inputs/CountryDropdown'
+import MahaLogoWhite from '../Logo/MahaLogoWhite'
 
 export default function Authlayout({ children, pageTitle }) {
     const router = useRouter()
@@ -15,12 +15,7 @@ export default function Authlayout({ children, pageTitle }) {
             <div className="flex min-h-screen bg-maha-500">
                 {/* Logo */}
                 <div className="flex flex-col items-center justify-center w-0 sm:w-5/12">
-                    <Image
-                        width={400}
-                        height={100}
-                        src="/maha-logo-white.png"
-                        alt="Maha Logo"
-                    />
+                    <MahaLogoWhite width={400} height={100} />
                     <div className="flex flex-row justify-center gap-3 pt-3">
                         <Button
                             type="button"

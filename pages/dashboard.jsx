@@ -13,6 +13,7 @@ import Cookies from 'js-cookie'
 import { useRouter } from 'next/router'
 import useSAP from '@/lib/sap'
 import Processing from '@/components/Layouts/Processing'
+import BtnAccordion from '@/components/Button/BtnAccordion'
 
 const Bar = dynamic(() => import('@/components/Graph/Bar'), {
     ssr: false,
@@ -69,7 +70,7 @@ function OrderDetails({ parentExpanded, details }) {
                 colSpan={4}
                 className={`${
                     !isExpanded ? 'hidden' : ''
-                } bg-green-50 py-2 px-5 text-[10px]`}>
+                } bg-table py-2 px-5 text-[10px]`}>
                 <div className="rounded-sm border-[1px]">
                     <table className="w-full">
                         <thead>
@@ -138,6 +139,7 @@ function Items({ data }) {
     const [isExpanded, setIsExpanded] = useState(false)
 
     const handleClick = () => {
+        console.log('test')
         setIsExpanded(() => !isExpanded)
     }
 
@@ -158,22 +160,7 @@ function Items({ data }) {
         <>
             <tr key={data.poNumber} className="text-left hover:bg-gray-100">
                 <td className="px-6 py-1.5">
-                    <Tooltip content="Details" placement="left">
-                        <button
-                            className={` inline-flex items-center rounded py-2 px-2 font-bold ${
-                                isExpanded
-                                    ? 'bg-green-400 text-white hover:bg-green-100 hover:text-gray-600'
-                                    : 'bg-gray-100 text-gray-400 hover:bg-gray-300'
-                            }`}
-                            onClick={handleClick}>
-                            <FontAwesomeIcon
-                                icon={faChevronDown}
-                                transform={
-                                    isExpanded ? { rotate: 180 } : { rotate: 0 }
-                                }
-                            />
-                        </button>
-                    </Tooltip>
+                    <BtnAccordion expand={isExpanded} onClick={handleClick} />
                 </td>
                 <td className="px-6 py-1.5 font-semibold text-blue-500">
                     {data.poNumber}
@@ -263,19 +250,21 @@ function TableInv({ invoices, loading }) {
     const renderCell = val => (
         <span
             className={`${
-                val === 'Overdue'
+                val.toLowerCase() === 'overdue'
                     ? 'border-red-300 bg-red-100 text-red-500'
                     : 'border-orange-300 bg-orange-100 text-orange-500'
             } mr-1 rounded-lg border-[1px] px-2 py-0.5 font-semibold`}>
-            {val}
+            {val.charAt(0).toUpperCase() + val.slice(1).toLowerCase()}
         </span>
     )
     const renderDueIn = (val, stat) => (
         <span
             className={`${
-                stat === 'Overdue' ? 'text-red-500' : 'text-orange-500'
+                stat.toLowerCase() === 'overdue'
+                    ? 'text-red-500'
+                    : 'text-orange-500'
             }  mr-1 px-2 py-0.5 font-semibold`}>
-            {val}
+            {val} {val === 1 ? 'day' : 'days'}
         </span>
     )
     return (
@@ -319,6 +308,7 @@ function TableInv({ invoices, loading }) {
                                     {renderDueIn(inv.dueIn, inv.invStatus)}
                                 </td>
                                 <td className="px-3 py-2">
+                                    {inv.currency}{' '}
                                     {inv.amountDue.toLocaleString()}
                                 </td>
                             </tr>
@@ -455,58 +445,70 @@ export default function Index() {
     let FC = []
     if (!isLoadingPayable) {
         LC = [
-            { day: '90+ days', amount: payable.aging_90_LC, color: '#DE1B1B' },
             {
-                day: '61-90 days',
+                order: 5,
+                label: '90+ days',
+                amount: payable.aging_90_LC,
+                amountColor: 'hsl(117, 70%, 50%)',
+            },
+            {
+                order: 4,
+                label: '61-90 days',
                 amount: payable.aging_61_90LC,
-                color: '#FA8E8E',
+                amountColor: 'hsl(245, 70%, 50%)',
             },
             {
-                day: '31-60 days',
+                order: 3,
+                label: '31-60 days',
                 amount: payable.aging_31_60LC,
-                color: '#F5BC76',
+                amountColor: 'hsl(182, 70%, 50%)',
             },
             {
-                day: '0-30 days',
+                order: 2,
+                label: '0-30 days',
                 amount: payable.aging_0_30LC,
-                color: '#FFDE86',
+                amountColor: 'hsl(167, 70%, 50%)',
             },
             {
-                day: 'Not Due',
+                order: 1,
+                label: 'Not Due',
                 amount: payable.aging_Future_RemitLC,
-                color: '#8CC73F',
+                amountColor: 'hsl(230, 70%, 50%)',
             },
         ]
-
         FC = [
-            { day: '90+ days', amount: payable.aging_90_FC, color: '#DE1B1B' },
             {
-                day: '61-90 days',
+                order: 5,
+                label: '90+ days',
+                amount: payable.aging_90_FC,
+                amountColor: 'hsl(117, 70%, 50%)',
+            },
+            {
+                order: 4,
+                label: '61-90 days',
                 amount: payable.aging_61_90FC,
-                color: '#FA8E8E',
+                amountColor: 'hsl(245, 70%, 50%)',
             },
             {
-                day: '31-60 days',
+                order: 3,
+                label: '31-60 days',
                 amount: payable.aging_31_60FC,
-                color: '#F5BC76',
+                amountColor: 'hsl(182, 70%, 50%)',
             },
             {
-                day: '0-30 days',
+                order: 2,
+                label: '0-30 days',
                 amount: payable.aging_0_30FC,
-                color: '#FFDE86',
+                amountColor: 'hsl(167, 70%, 50%)',
             },
             {
-                day: 'Not Due',
+                order: 1,
+                label: 'Not Due',
                 amount: payable.aging_Future_RemitFC,
-                color: '#8CC73F',
+                amountColor: 'hsl(230, 70%, 50%)',
             },
         ]
     }
-
-    useEffect(() => {
-        // Prefetch the dashboard page
-        router.prefetch('/dashboard')
-    }, [])
 
     return (
         <Mainlayout pageTitle="Dashboard">
@@ -548,7 +550,7 @@ export default function Index() {
                                             <span
                                                 className={`px-1 rounded ${
                                                     openTab === idx
-                                                        ? 'text-maha-green-500 bg-maha-green-100'
+                                                        ? 'text-green-dark bg-green-light'
                                                         : 'text-gray-500 bg-gray-100'
                                                 }`}>
                                                 {total}
@@ -699,9 +701,7 @@ export default function Index() {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="flex items-center py-3 text-xs">
-                                        loading bar chart...
-                                    </div>
+                                    <Processing />
                                 )}
                             </div>
 
