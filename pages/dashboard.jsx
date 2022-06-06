@@ -3,7 +3,11 @@ import Searchinput from '@components/Inputs/SearchInput'
 import Mainlayout from '@components/Layouts/MainLayout'
 import Maintitle from '@components/Typography/MainTitle'
 import Subtitle from '@components/Typography/SubTitle'
-import { faChevronDown, faSearch } from '@fortawesome/free-solid-svg-icons'
+import {
+    faChevronDown,
+    faSearch,
+    faSquare,
+} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import { Tooltip } from '@nextui-org/react'
@@ -14,6 +18,8 @@ import { useRouter } from 'next/router'
 import useSAP from '@/lib/sap'
 import Processing from '@/components/Layouts/Processing'
 import BtnAccordion from '@/components/Button/BtnAccordion'
+import Legends from '@/components/Typography/Legends'
+import Paginate from '@/components/Pagination/Paginate'
 
 const Bar = dynamic(() => import('@/components/Graph/Bar'), {
     ssr: false,
@@ -57,12 +63,16 @@ function OrderDetails({ parentExpanded, details }) {
         }-${date.getFullYear()}`
         return poDate
     }
-    function renderColor(str) {
-        const d = str.slice(0, 10)
-        const date = new Date(d)
+    function renderColor(d, stat) {
+        const dt = d.slice(0, 10)
+        const date = new Date(dt)
         const today = new Date()
         const color = date > today ? 'text-maha-500 font-semibold' : ''
-        return color
+        if (stat) {
+            if (stat.toLowerCase() !== 'delivered') return color
+            return ''
+        }
+        return ''
     }
     return (
         <tr>
@@ -116,14 +126,23 @@ function OrderDetails({ parentExpanded, details }) {
                                     <td
                                         className={`px-3 py-2 ${renderColor(
                                             detail.activityDate,
+                                            detail.activity,
                                         )}`}>
-                                        {`${renderDateReceive(
-                                            detail.activityDate,
-                                        )} - ${
-                                            detail.activityQty !== null
-                                                ? detail.activityQty.toLocaleString()
-                                                : '0.00'
-                                        }${detail.uoM} ${detail.activity}`}
+                                        {detail.activityDate.slice(0, 10) !==
+                                        '1900-01-01'
+                                            ? detail.activityDate.slice(
+                                                  0,
+                                                  10,
+                                              ) !== '0001-01-01'
+                                                ? `${renderDateReceive(
+                                                      detail.activityDate,
+                                                  )}-${Number(
+                                                      detail.activityQty,
+                                                  ).toLocaleString()}${
+                                                      detail.uoM
+                                                  } ${detail.activity}`
+                                                : '-'
+                                            : '-'}
                                     </td>
                                 </tr>
                             ))}
@@ -139,7 +158,6 @@ function Items({ data }) {
     const [isExpanded, setIsExpanded] = useState(false)
 
     const handleClick = () => {
-        console.log('test')
         setIsExpanded(() => !isExpanded)
     }
 
@@ -177,9 +195,9 @@ function Orders({ datas, loading }) {
     if (loading) return <Processing />
     if (!datas) return <p>No data</p>
     return (
-        <div className="flex h-[65vh] flex-col rounded-lg pt-2">
-            <div className="flex-grow overflow-auto rounded-md border-[1px]">
-                <table className="relative w-full text-xs">
+        <div className="flex flex-col rounded-lg pt-2">
+            <div className="flex-grow rounded-md border-[1px]">
+                <table className="w-full text-xs">
                     <thead>
                         <tr className="text-left uppercase">
                             <th className="sticky top-0 w-3 px-6 py-3 text-gray-400 bg-gray-100" />
@@ -210,6 +228,9 @@ function Orders({ datas, loading }) {
                         )}
                     </tbody>
                 </table>
+            </div>
+            <div className="p-3 flex justify-center">
+                <Paginate />
             </div>
         </div>
     )
@@ -268,7 +289,7 @@ function TableInv({ invoices, loading }) {
         </span>
     )
     return (
-        <div className="h-44 overflow-auto rounded-md border-[1px] text-[9px]">
+        <div className="overflow-auto rounded-md border-[1px] text-[9px]">
             <table className="relative w-full">
                 <thead>
                     <tr>
@@ -515,13 +536,13 @@ export default function Index() {
             <Maintitle title="Dashboard" />
             <div className="flex gap-2">
                 {/* Open Orders */}
-                <div className="w-4/6 space-y-3">
+                <div className="w-4/6 space-y-3 max-h-screen">
                     <Subtitle
                         title="Open Orders"
                         content="Only outstanding & unfulfilled orders are displayed."
                         placement="right"
                     />
-                    <Card additionalWrapperClasses="text-xs">
+                    <Card additionalInnerClasses="h-fit">
                         <div className="flex items-center justify-between">
                             <ul
                                 className="flex flex-row flex-wrap pb-2 mb-0 list-none"
@@ -559,7 +580,7 @@ export default function Index() {
                                     </li>
                                 ))}
                             </ul>
-                            <div>
+                            <div className="text-xs">
                                 <span className="absolute text-gray-300 transform translate-y-1/2 pointer-events-none">
                                     <FontAwesomeIcon icon={faSearch} />
                                 </span>
@@ -587,7 +608,7 @@ export default function Index() {
                 </div>
 
                 {/* Total outstanding payables */}
-                <div className="w-2/6 space-y-3">
+                <div className="w-2/6 space-y-3 max-h-screen">
                     <Subtitle
                         title="Total Outstanding Payables"
                         content="Only outstanding & overdue invoices are displayed."
@@ -663,12 +684,12 @@ export default function Index() {
                                             <div className="flex-auto">
                                                 <div className="tab-content tab-space">
                                                     <div
-                                                        className={
+                                                        className={`${
                                                             openTabBar ===
                                                             payable.localCurrency
                                                                 ? 'block'
                                                                 : 'hidden'
-                                                        }
+                                                        }`}
                                                         id={
                                                             payable.localCurrency
                                                         }>
@@ -680,12 +701,12 @@ export default function Index() {
                                                         />
                                                     </div>
                                                     <div
-                                                        className={
+                                                        className={`${
                                                             openTabBar ===
                                                             payable.foreignCurrency
                                                                 ? 'block'
                                                                 : 'hidden'
-                                                        }
+                                                        }`}
                                                         id={
                                                             payable.foreignCurrency
                                                         }>

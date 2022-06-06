@@ -59,7 +59,9 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
                 password: passwordSAP,
             })
             .then(res => {
-                Cookies.set('SAP-TOKEN', res.data.token, res.data.expire)
+                Cookies.set('SAP-TOKEN', res.data.token, {
+                    domain: 'localhost',
+                })
             })
             .catch(error => {
                 if (error.response.status !== 422) throw error

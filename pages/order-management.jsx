@@ -87,7 +87,7 @@ function OrderByPo({ items, loading }) {
         setIsExpanded(() => !isExpanded)
     }
     return (
-        <div className="flex h-[64vh] flex-col rounded-lg">
+        <div className="flex h-[73vh] flex-col rounded-lg">
             <div className="flex-grow overflow-auto rounded-md border-[1px]">
                 <table className="relative w-full text-xs">
                     <thead>
@@ -245,7 +245,7 @@ function OrderByItem({ items, loading }) {
     if (loading) return <Processing />
     if (!items) return <p>No data</p>
     return (
-        <div className="flex h-[64vh] flex-col rounded-lg">
+        <div className="flex h-[73vh] flex-col rounded-lg">
             <div className="flex-grow overflow-auto rounded-md border-[1px]">
                 <table className="relative w-full text-xs">
                     <thead>
@@ -415,7 +415,7 @@ function Summary({ sum, loading }) {
     if (loading) return <Processing />
     if (!sum) return <p>No data</p>
     const summary = sum
-    // console.log(summary.unfulfilled)
+
     return (
         <div className="flex flex-col h-96 sm:h-full">
             <div className="mx-4 flex h-1/4 flex-1 basis-1/4 items-center space-x-7 whitespace-nowrap border-b-[1px] border-gray-200 px-32 sm:px-0">
@@ -559,10 +559,10 @@ export default function OrderManagement() {
                 </Tooltip>
             </div>
             {/* Order */}
-            <div className="flex flex-col space-x-0 space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
+            <div className="flex flex-col h-full space-x-0 space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
                 {/* All Orders */}
                 <div className="basis-4/5">
-                    <Card>
+                    <Card additionalWrapperClasses="h-full">
                         <div className="flex flex-wrap">
                             <div className="w-full">
                                 {/* Filter */}

@@ -12,7 +12,7 @@ export default function Mainlayout({ children, pageTitle }) {
                 <meta name="description" content="E-Services Maha Chemicals" />
             </Head>
             {/* Main */}
-            <div className="flex w-full min-h-screen bg-white">
+            <div className="flex relative flex-grow w-full min-h-screen bg-white">
                 <Sidebar />
                 <div className="flex flex-col w-full bg-content">
                     <Header user={user} />

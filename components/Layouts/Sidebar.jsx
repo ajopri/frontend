@@ -45,11 +45,21 @@ export default function Sidebar() {
             </button>
             {/* Logo */}
             <div className="flex justify-center h-16 px-3 py-3">
-                {!openSidebar ? (
+                {/* {!openSidebar ? ( */}
+                <div
+                    className={`${
+                        !openSidebar ? 'visible' : 'invisible'
+                    } absolute`}>
                     <Mahalogosmall width={40} height={40} />
-                ) : (
+                </div>
+                {/* ) : ( */}
+                <div
+                    className={`${
+                        openSidebar ? 'visible' : 'invisible'
+                    } absolute`}>
                     <Mahalogo width={140} height={40} />
-                )}
+                </div>
+                {/* )} */}
             </div>
             {/* Navigation */}
             <nav

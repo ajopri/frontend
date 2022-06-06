@@ -1,4 +1,5 @@
 import { ResponsiveBar } from '@nivo/bar'
+import Legends from '../Typography/Legends'
 
 export default function Bar({ datas, cur }) {
     // const amount = `amount`;
@@ -25,14 +26,14 @@ export default function Bar({ datas, cur }) {
         })
 
     return (
-        <div className="h-[175px]">
+        <div className="h-[175px] flex flex-row p-0 items-end justify-items-end">
             <ResponsiveBar
-                width={440}
+                width={345}
                 height={170}
                 data={datas}
                 keys={['amount']}
                 indexBy="label"
-                margin={{ top: 0, right: 100, bottom: 20, left: 0 }}
+                margin={{ top: 0, right: 100, bottom: 0, left: 0 }}
                 valueScale={{ type: 'linear' }}
                 layout="horizontal"
                 colors={['#DE1B1B', '#FA8E8E', '#F5BC76', '#FFDE86', '#8CC73F']}
@@ -68,48 +69,51 @@ export default function Bar({ datas, cur }) {
                     'annotations',
                     props => <ValueOutside {...props} />,
                 ]}
-                legends={[
-                    {
-                        // dataFrom: 'value',
-                        data: datas.map((item, index) => ({
-                            color: [
-                                '#8CC73F',
-                                '#FFDE86',
-                                '#F5BC76',
-                                '#FA8E8E',
-                                '#DE1B1B',
-                            ][index],
-                            id: item.order,
-                            label: [
-                                'Not Due',
-                                '0-30 days',
-                                '31-60 days',
-                                '61-90 days',
-                                '90+ days',
-                            ][index],
-                        })),
-                        anchor: 'bottom-right',
-                        direction: 'row',
-                        justify: false,
-                        translateX: 100,
-                        translateY: 20,
-                        itemsSpacing: 2,
-                        itemWidth: 80,
-                        itemHeight: 15,
-                        itemDirection: 'left-to-right',
-                        itemOpacity: 0.85,
-                        symbolSize: 15,
-                        effects: [
-                            {
-                                on: 'hover',
-                                style: {
-                                    itemOpacity: 0.5,
-                                },
-                            },
-                        ],
-                    },
-                ]}
+                // legends={[
+                //     {
+                //         // dataFrom: 'value',
+                //         data: datas.map((item, index) => ({
+                //             color: [
+                //                 '#8CC73F',
+                //                 '#FFDE86',
+                //                 '#F5BC76',
+                //                 '#FA8E8E',
+                //                 '#DE1B1B',
+                //             ][index],
+                //             id: item.order,
+                //             label: [
+                //                 'Not Due',
+                //                 '0-30 days',
+                //                 '31-60 days',
+                //                 '61-90 days',
+                //                 '90+ days',
+                //             ][index],
+                //         })),
+                //         anchor: 'bottom-right',
+                //         direction: 'row',
+                //         justify: false,
+                //         translateX: 100,
+                //         translateY: 20,
+                //         itemsSpacing: 2,
+                //         itemWidth: 80,
+                //         itemHeight: 15,
+                //         itemDirection: 'left-to-right',
+                //         itemOpacity: 0.85,
+                //         symbolSize: 15,
+                //         effects: [
+                //             {
+                //                 on: 'hover',
+                //                 style: {
+                //                     itemOpacity: 0.5,
+                //                 },
+                //             },
+                //         ],
+                //     },
+                // ]}
             />
+            <div className="w-full">
+                <Legends />
+            </div>
         </div>
     )
 }

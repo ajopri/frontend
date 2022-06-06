@@ -238,7 +238,7 @@ function Listinvoices({ datas, loading }) {
                             <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100">
                                 amount due
                             </th>
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100" />
+                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100 w-52" />
                         </tr>
                     </thead>
                     <tbody className="bg-white-100">
