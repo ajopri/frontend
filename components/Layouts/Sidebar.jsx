@@ -57,7 +57,7 @@ export default function Sidebar() {
                     className={`${
                         openSidebar ? 'visible' : 'invisible'
                     } absolute`}>
-                    <Mahalogo width={140} height={40} />
+                    <Mahalogo width={175} height={40} />
                 </div>
                 {/* )} */}
             </div>
@@ -71,13 +71,13 @@ export default function Sidebar() {
                     ['Dashboard', '/dashboard', faChartBar],
                     ['Order Management', '/order-management', faShoppingCart],
                     ['Invoices', '/invoices', faDollarSign],
-                    [
-                        'Product Information',
-                        '/product-information',
-                        faFileInvoiceDollar,
-                    ],
-                    ['Recommendations', '/recommendations', faInfoCircle],
-                    ['Quotations', '/quotations', faThumbsUp],
+                    // [
+                    //     'Product Information',
+                    //     '/product-information',
+                    //     faFileInvoiceDollar,
+                    // ],
+                    // ['Recommendations', '/recommendations', faInfoCircle],
+                    // ['Quotations', '/quotations', faThumbsUp],
                 ].map(([title, url, icon]) => (
                     <a key={title} href={url}>
                         <span>

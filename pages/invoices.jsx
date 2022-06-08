@@ -115,7 +115,7 @@ function InvoiceDetails({ parentExpanded, details }) {
                                         {detail.poNumber}
                                     </td>
                                     <td className="px-3 py-2">
-                                        {detail.unitPrice.toLocaleString()}
+                                        {`${detail.unitPrice.toLocaleString()}/${detail.uoM.toLowerCase()}`}
                                     </td>
                                     <td className="px-3 py-2">
                                         {detail.lineTotal.toLocaleString()}

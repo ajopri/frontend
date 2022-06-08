@@ -686,7 +686,9 @@ export default function OrderManagement() {
                 </div>
                 {/* Summary */}
                 <div className="basis-1/5">
-                    <Card additionalWrapperClasses="h-full">
+                    <Card
+                        additionalWrapperClasses="h-full"
+                        additionalInnerClasses="h-full">
                         <Summary sum={orderByPo[0]} loading={isLoadingByPo} />
                     </Card>
                 </div>

@@ -28,7 +28,7 @@ export default function Header({ user }) {
     const { logout } = useAuth()
 
     return (
-        <header className="z-10 flex justify-between h-16 px-4 py-2 text-xs text-gray-500 shadow">
+        <header className="z-10 flex justify-between h-16 px-4 py-2 text-xs text-gray-500 shadow bg-white">
             <div className="my-auto ml-12">
                 {/* Search */}
                 <div className="flex items-center justify-between invisible px-4 pl-10 sm:visible">

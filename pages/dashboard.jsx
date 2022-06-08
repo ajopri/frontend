@@ -3,23 +3,18 @@ import Searchinput from '@components/Inputs/SearchInput'
 import Mainlayout from '@components/Layouts/MainLayout'
 import Maintitle from '@components/Typography/MainTitle'
 import Subtitle from '@components/Typography/SubTitle'
-import {
-    faChevronDown,
-    faSearch,
-    faSquare,
-} from '@fortawesome/free-solid-svg-icons'
+import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
-import { Tooltip } from '@nextui-org/react'
 import ReactCountryFlag from 'react-country-flag'
 import dynamic from 'next/dynamic'
 import Cookies from 'js-cookie'
-import { useRouter } from 'next/router'
+import { Pagination } from '@nextui-org/react'
+import _ from 'lodash'
 import useSAP from '@/lib/sap'
 import Processing from '@/components/Layouts/Processing'
 import BtnAccordion from '@/components/Button/BtnAccordion'
-import Legends from '@/components/Typography/Legends'
-import Paginate from '@/components/Pagination/Paginate'
+import { paginate } from '@/utils/paginate'
 
 const Bar = dynamic(() => import('@/components/Graph/Bar'), {
     ssr: false,
@@ -193,7 +188,17 @@ function Items({ data }) {
 
 function Orders({ datas, loading }) {
     if (loading) return <Processing />
-    if (!datas) return <p>No data</p>
+    if (!datas || datas.length < 0) return <p>No data</p>
+
+    const [currentPage, setCurrentPage] = useState(1)
+    const pageSize = 11
+
+    const pageCount = datas.length / pageSize
+
+    const pages = _.range(1, pageCount + 1)
+
+    const paginateOrders = paginate(datas, currentPage, pageSize)
+
     return (
         <div className="flex flex-col rounded-lg pt-2">
             <div className="flex-grow rounded-md border-[1px]">
@@ -213,8 +218,8 @@ function Orders({ datas, loading }) {
                         </tr>
                     </thead>
                     <tbody className="bg-white-100">
-                        {datas.length > 0 ? (
-                            datas.map((item, idx) => (
+                        {paginateOrders.length > 0 ? (
+                            paginateOrders.map((item, idx) => (
                                 <Items key={idx} data={item} />
                             ))
                         ) : (
@@ -230,7 +235,17 @@ function Orders({ datas, loading }) {
                 </table>
             </div>
             <div className="p-3 flex justify-center">
-                <Paginate />
+                <Pagination
+                    total={pages.length}
+                    page={currentPage}
+                    initialPage={1}
+                    color="secondary"
+                    size="sm"
+                    shadow
+                    siblings={2}
+                    noMargin
+                    onChange={page => setCurrentPage(page)}
+                />
             </div>
         </div>
     )
@@ -267,7 +282,17 @@ function Account({ detail, loading }) {
 
 function TableInv({ invoices, loading }) {
     if (loading) return <Processing />
-    if (!invoices) return <p>No data</p>
+    if (!invoices || invoices.length < 0) return <p>No data</p>
+
+    const [currentPage, setCurrentPage] = useState(1)
+    const pageSize = 5
+
+    const pageCount = invoices.length / pageSize
+
+    const pages = _.range(1, pageCount + 1)
+
+    const paginateInvoices = paginate(invoices, currentPage, pageSize)
+
     const renderCell = val => (
         <span
             className={`${
@@ -289,69 +314,82 @@ function TableInv({ invoices, loading }) {
         </span>
     )
     return (
-        <div className="overflow-auto rounded-md border-[1px] text-[9px]">
-            <table className="relative w-full">
-                <thead>
-                    <tr>
-                        <th className="sticky top-0 px-2 py-2 font-semibold text-left text-gray-500 uppercase bg-gray-100 rounded-tl-md">
-                            invoice#
-                        </th>
-                        <th className="sticky top-0 px-2 py-2 font-semibold text-left text-gray-500 uppercase bg-gray-100">
-                            due date
-                        </th>
-                        <th className="sticky top-0 px-2 py-2 font-semibold text-left text-gray-500 uppercase bg-gray-100">
-                            status
-                        </th>
-                        <th className="sticky top-0 px-2 py-2 font-semibold text-left text-gray-500 uppercase bg-gray-100">
-                            due in
-                        </th>
-                        <th className="sticky top-0 px-2 py-2 font-semibold text-left text-gray-500 uppercase bg-gray-100 rounded-tr-md">
-                            amount due
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {invoices.length > 0 ? (
-                        invoices.map((inv, idx) => (
-                            <tr key={idx} className="hover:bg-gray-100">
-                                <td className="px-3 py-2">
-                                    <span className="font-semibold text-blue-800">
-                                        {inv.invNumber}
-                                    </span>
-                                </td>
-                                <td className="px-3 py-2">
-                                    {renderDate(inv.dueDate)}
-                                </td>
-                                <td className="px-3 py-2">
-                                    {renderCell(inv.invStatus)}
-                                </td>
-                                <td className="px-3 py-2">
-                                    {renderDueIn(inv.dueIn, inv.invStatus)}
-                                </td>
-                                <td className="px-3 py-2">
-                                    {inv.currency}{' '}
-                                    {inv.amountDue.toLocaleString()}
+        <>
+            <div className="overflow-auto rounded-md border-[1px] text-[9px]">
+                <table className="relative w-full">
+                    <thead>
+                        <tr>
+                            <th className="sticky top-0 px-2 py-2 font-semibold text-left text-gray-500 uppercase bg-gray-100 rounded-tl-md">
+                                invoice#
+                            </th>
+                            <th className="sticky top-0 px-2 py-2 font-semibold text-left text-gray-500 uppercase bg-gray-100">
+                                due date
+                            </th>
+                            <th className="sticky top-0 px-2 py-2 font-semibold text-left text-gray-500 uppercase bg-gray-100">
+                                status
+                            </th>
+                            <th className="sticky top-0 px-2 py-2 font-semibold text-left text-gray-500 uppercase bg-gray-100">
+                                due in
+                            </th>
+                            <th className="sticky top-0 px-2 py-2 font-semibold text-left text-gray-500 uppercase bg-gray-100 rounded-tr-md">
+                                amount due
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {paginateInvoices.length > 0 ? (
+                            paginateInvoices.map((inv, idx) => (
+                                <tr key={idx} className="hover:bg-gray-100">
+                                    <td className="px-3 py-2">
+                                        <span className="font-semibold text-blue-800">
+                                            {inv.invNumber}
+                                        </span>
+                                    </td>
+                                    <td className="px-3 py-2">
+                                        {renderDate(inv.dueDate)}
+                                    </td>
+                                    <td className="px-3 py-2">
+                                        {renderCell(inv.invStatus)}
+                                    </td>
+                                    <td className="px-3 py-2">
+                                        {renderDueIn(inv.dueIn, inv.invStatus)}
+                                    </td>
+                                    <td className="px-3 py-2">
+                                        {inv.currency}{' '}
+                                        {inv.amountDue.toLocaleString()}
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td
+                                    colSpan="5"
+                                    className="py-4 font-semibold text-center">
+                                    No data
                                 </td>
                             </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td
-                                colSpan="5"
-                                className="py-4 font-semibold text-center">
-                                No data
-                            </td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
-        </div>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+            <div className="p-3 flex justify-center">
+                <Pagination
+                    total={pages.length}
+                    page={currentPage}
+                    initialPage={1}
+                    color="secondary"
+                    size="sm"
+                    shadow
+                    siblings={2}
+                    noMargin
+                    onChange={page => setCurrentPage(page)}
+                />
+            </div>
+        </>
     )
 }
 
 export default function Index() {
-    const router = useRouter()
-
     const rcc = Cookies.get('rcc')
     const custgroup = Cookies.get('custgroup')
 
@@ -641,7 +679,7 @@ export default function Index() {
                                             role="tablist">
                                             <li className="flex-auto -mb-px text-center last:mr-0">
                                                 <a
-                                                    className={`block px-5 py-3 text-xs font-bold uppercase leading-normal ${
+                                                    className={`block px-5 py-2 text-xs font-bold uppercase leading-normal ${
                                                         openTabBar ===
                                                         payable.foreignCurrency
                                                             ? 'rounded-tr-md rounded-tl-md border-b-2 border-maha-500 bg-maha-500 text-white'
@@ -661,7 +699,7 @@ export default function Index() {
                                             </li>
                                             <li className="flex-auto -mb-px text-center last:mr-0">
                                                 <a
-                                                    className={`block px-5 py-3 text-xs font-bold uppercase leading-normal ${
+                                                    className={`block px-5 py-2 text-xs font-bold uppercase leading-normal ${
                                                         openTabBar ===
                                                         payable.localCurrency
                                                             ? 'rounded-tr-md rounded-tl-md border-b-2 border-maha-500 bg-maha-500 text-white'

@@ -49,8 +49,8 @@ export default function AdminSidebar() {
                 }`}>
                 <Image src="/line.svg" width={90} height={10} />
                 {[
-                    ['Manage Users', '/manage-users', faUser],
-                    ['Manage Groups', '/manage-groups', faBuilding],
+                    ['Manage Users', '/admin/manage-users', faUser],
+                    ['Manage Groups', '/admin/manage-groups', faBuilding],
                 ].map(([title, url, icon]) => (
                     <a key={title} href={url}>
                         <span>
