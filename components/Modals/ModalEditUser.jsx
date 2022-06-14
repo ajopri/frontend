@@ -1,18 +1,74 @@
-import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
+import {
+    faChevronDown,
+    faCircle,
+    faPenToSquare,
+    faPlus,
+    faTimes,
+} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Modal, Spacer } from '@nextui-org/react'
 import { useState } from 'react'
 import Button from '../Button/Button'
 import Input from '../Inputs/Input'
+import StatusDropdown from '../Inputs/StatusDropdown'
 
-export default function ModalEditUser({ visible, closeHandler, ...props }) {
-    console.log(visible)
-    const [isVisible, setIsVisible] = useState(visible)
+const options = [
+    {
+        label: 'Apple',
+        value: 'apple',
+    },
+    {
+        label: 'Mango',
+        value: 'mango',
+    },
+    {
+        label: 'Banana',
+        value: 'banana',
+    },
+    {
+        label: 'Pineapple',
+        value: 'pineapple',
+    },
+]
 
-    // const closeHandler = () => {
-    //     setIsVisible(false)
-    //     console.log('closed')
-    // }
+export default function ModalEditUser({
+    visible = false,
+    closeHandler,
+    submitHandler,
+    ...props
+}) {
+    const [defEmail, setDefEmail] = useState('')
+    const [rowsData, setRowsData] = useState([])
+    const [dropdownOpen, setDropdownOpen] = useState(false)
+    const [status, setStatus] = useState('')
+
+    const handleChangeDefault = e => {
+        const selectedEmail = e.target.value
+        setDefEmail(selectedEmail)
+    }
+
+    const addTableRows = () => {
+        const rowsInput = {
+            name: '',
+            email: '',
+            company: '',
+            status: '',
+        }
+        setRowsData([...rowsData, rowsInput])
+    }
+    const deleteTableRows = index => {
+        const rows = [...rowsData]
+        rows.splice(index, 1)
+        setRowsData(rows)
+    }
+
+    const handleChange = (index, evnt) => {
+        const { name, value } = evnt.target
+        const rowsInput = [...rowsData]
+        rowsInput[index][name] = value
+        setRowsData(rowsInput)
+    }
+
     return (
         <>
             <Modal
@@ -23,54 +79,61 @@ export default function ModalEditUser({ visible, closeHandler, ...props }) {
                 onClose={closeHandler}
                 css={{ paddingTop: 0 }}>
                 <Modal.Header
-                    autoMargin
+                    // autoMargin
                     justify="flex-start"
-                    css={{ background: '#EBEFF5', color: '#434A54' }}>
-                    <FontAwesomeIcon icon={faPenToSquare} />
+                    css={{
+                        background: '#EBEFF5',
+                        color: '#434A54',
+                        paddingRight: '2rem',
+                    }}>
+                    <FontAwesomeIcon icon={faPenToSquare} size="lg" />
                     <Spacer />{' '}
-                    <h1 className="font-semibold text-lg">
+                    <h1 className="text-lg font-semibold">
                         MANAGE COMPANY ACCOUNTS
                     </h1>
                 </Modal.Header>
                 <Modal.Body>
-                    <div className="container p-4">
+                    <div className="container p-4 space-y-10">
                         <div className="flex flex-row">
-                            <div className="w-2/3 border-r-2 border-gray-300 pr-5">
-                                <h2 className="font-semibold text-gray-600 pb-3">
+                            <div className="w-2/3 pr-5 border-r-2 border-gray-300">
+                                <h2 className="pb-3 font-semibold text-gray-600">
                                     Set default email
                                 </h2>
-                                <div className="flex gap-4">
+                                <div className="flex gap-3">
                                     <div className="flex-initial w-1/3">
                                         <Input
+                                            className="rounded-none"
                                             disabled
-                                            value=""
+                                            value="test"
                                             label="Customer Group"
                                         />
                                     </div>
                                     <div className="flex-initial w-2/3">
-                                        <div
-                                            for="emails"
-                                            className="pb-2 text-gray-500 uppercase text-xs">
-                                            Select an option
+                                        <div className="pb-2 text-xs text-gray-500 uppercase">
+                                            Default Email
                                         </div>
                                         <select
-                                            id="emails"
-                                            className="w-full px-3 py-2 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300">
-                                            <option selected>
+                                            value={defEmail}
+                                            onChange={e =>
+                                                handleChangeDefault(e)
+                                            }
+                                            className="w-full px-3 py-2 text-gray-500 placeholder-gray-300 border border-gray-300 rounded-none focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300">
+                                            <option value="">
                                                 Choose a email
                                             </option>
-                                            <option value="US">
-                                                United States
-                                            </option>
-                                            <option value="CA">Canada</option>
-                                            <option value="FR">France</option>
-                                            <option value="DE">Germany</option>
+                                            {options.map(option => (
+                                                <option
+                                                    key={option.value}
+                                                    value={option.value}>
+                                                    {option.label}
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
                                 </div>
                             </div>
                             <div className="w-1/3 pl-5">
-                                <h2 className="font-semibold text-gray-600 pb-3">
+                                <h2 className="pb-3 font-semibold text-gray-600">
                                     Companies
                                 </h2>
                                 <ul className="text-sm text-gray-500 capitalize">
@@ -82,36 +145,116 @@ export default function ModalEditUser({ visible, closeHandler, ...props }) {
                         </div>
                         <div className="flex flex-row">
                             <div className="w-full">
-                                <h2 className="font-semibold text-gray-600 pb-3">
-                                    Set default email
+                                <h2 className="pb-3 font-semibold text-gray-600">
+                                    Edit Users
                                 </h2>
-                                <div className="flex gap-4">
-                                    <div className="flex-initial w-1/12">
-                                        <Input
-                                            disabled
-                                            value=""
-                                            label="Customer Group"
-                                        />
-                                    </div>
-                                    <div className="flex-initial w-2/3">
-                                        <div
-                                            for="emails"
-                                            className="pb-2 text-gray-500 uppercase text-xs">
-                                            Select an option
-                                        </div>
-                                        <select
-                                            id="emails"
-                                            className="w-full px-3 py-2 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300">
-                                            <option selected>
-                                                Choose a email
-                                            </option>
-                                            <option value="US">
-                                                United States
-                                            </option>
-                                            <option value="CA">Canada</option>
-                                            <option value="FR">France</option>
-                                            <option value="DE">Germany</option>
-                                        </select>
+                                <div className="flex flex-col gap-4">
+                                    <table className="w-full space-x-3 table-auto">
+                                        <thead>
+                                            <tr className="text-xs text-gray-500 uppercase">
+                                                <th className="w-3/12 pb-1 font-light">
+                                                    name
+                                                </th>
+                                                <th className="w-3/12 pb-1 font-light">
+                                                    email
+                                                </th>
+                                                <th className="w-4/12 pb-1 font-light">
+                                                    companies
+                                                </th>
+                                                <th className="w-2/12 pb-1 font-light">
+                                                    status
+                                                </th>
+                                                <th />
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {rowsData.map((data, index) => (
+                                                <tr key={index}>
+                                                    <td>
+                                                        <div className="pb-2 pr-2">
+                                                            <Input
+                                                                className="rounded-none"
+                                                                type="text"
+                                                                name="name"
+                                                                value={
+                                                                    data.name
+                                                                }
+                                                                onChange={evnt =>
+                                                                    handleChange(
+                                                                        index,
+                                                                        evnt,
+                                                                    )
+                                                                }
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className="pb-2 pr-2">
+                                                            <Input
+                                                                className="rounded-none"
+                                                                type="text"
+                                                                name="email"
+                                                                value={
+                                                                    data.email
+                                                                }
+                                                                onChange={evnt =>
+                                                                    handleChange(
+                                                                        index,
+                                                                        evnt,
+                                                                    )
+                                                                }
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className="pb-2 pr-2">
+                                                            <Input
+                                                                className="rounded-none"
+                                                                type="text"
+                                                                name="company"
+                                                                value={
+                                                                    data.company
+                                                                }
+                                                                onChange={evnt =>
+                                                                    handleChange(
+                                                                        index,
+                                                                        evnt,
+                                                                    )
+                                                                }
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className="flex flex-row pb-2">
+                                                            <StatusDropdown />
+                                                            {/* <button
+                                                                className="text-right btn btn-outline-danger"
+                                                                onClick={() =>
+                                                                    deleteTableRows(
+                                                                        index,
+                                                                    )
+                                                                }>
+                                                                <FontAwesomeIcon
+                                                                    icon={
+                                                                        faTimes
+                                                                    }
+                                                                    className="text-red-500"
+                                                                />
+                                                            </button> */}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                    <div className="flex justify-start">
+                                        <Button
+                                            type="button"
+                                            onClick={addTableRows}
+                                            className="w-auto px-4 py-2 text-sm text-white rounded bg-maha-green-400">
+                                            <FontAwesomeIcon icon={faPlus} />{' '}
+                                            Add User
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
@@ -119,16 +262,17 @@ export default function ModalEditUser({ visible, closeHandler, ...props }) {
                     </div>
                 </Modal.Body>
                 <Modal.Footer justify="flex-end">
-                    <div className="flex p-4">
+                    <div className="flex px-4 py-2 space-x-2">
                         <Button
                             type="button"
-                            className="bg-gray-600 text-white hover:opacity-50 rounded py-1 px-3">
+                            onClick={closeHandler}
+                            className="px-5 py-2 text-white bg-gray-600 rounded hover:opacity-50">
                             Cancel
                         </Button>
-                        <Spacer />
                         <Button
                             type="submit"
-                            className="bg-btn-accordion text-white hover:opacity-50 rounded py-1 px-3">
+                            // onClick={closeHandler}
+                            className="px-5 py-2 text-white rounded bg-maha-green-400 hover:opacity-50">
                             save
                         </Button>
                     </div>

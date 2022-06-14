@@ -1,3 +1,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+thead div.ascending::after,
+thead div.descending::after {
+    border: 5px solid transparent;
+    content: '';
+    display: inline;
+    /*top: 50%;*/
+    height: 0;
+    width: 0;
+    margin-left: 0.3em;
+    position: absolute;
+}
+
+thead div.ascending::after {
+    border-bottom-color: #103570;
+    margin-top: 1px;
+}
+thead div.descending::after {
+    border-top-color: #103570;
+    margin-top: 6px;
+}

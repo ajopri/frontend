@@ -39,9 +39,8 @@ export default function Login() {
         event.preventDefault()
         setIsLoading(true)
         login({ email, password, setErrors, setStatus, setIsLoading })
-        sapToken({ setErrors, setStatus })
+        // sapToken({ setErrors, setStatus })
     }
-
     return (
         <Authlayout pageTitle="Login">
             {/* content */}

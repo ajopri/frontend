@@ -1,5 +1,4 @@
 import {
-    faBell,
     faMagnifyingGlass,
     faPowerOff,
     faUser,
@@ -24,11 +23,12 @@ export default function Header({ user }) {
 
     const [openProfile, setOpenProfile] = useState(false)
     const handleProfile = () => setOpenProfile(!openProfile)
+    const [isLoading, setIsLoading] = useState(false)
 
     const { logout } = useAuth()
 
     return (
-        <header className="z-10 flex justify-between h-16 px-4 py-2 text-xs text-gray-500 shadow bg-white">
+        <header className="z-10 flex justify-between h-16 px-4 py-2 text-xs text-gray-500 bg-white shadow">
             <div className="my-auto ml-12">
                 {/* Search */}
                 <div className="flex items-center justify-between invisible px-4 pl-10 sm:visible">
@@ -66,8 +66,24 @@ export default function Header({ user }) {
                                 className={`${
                                     !openProfile ? 'hidden' : ''
                                 } cursor-pointer hover:text-red-600 text-red-400 font-bold`}
-                                onClick={logout}>
-                                <FontAwesomeIcon icon={faPowerOff} size="lg" />
+                                onClick={e => {
+                                    logout()
+                                    setIsLoading(true)
+                                }}>
+                                {!isLoading ? (
+                                    <FontAwesomeIcon
+                                        icon={faPowerOff}
+                                        size="lg"
+                                    />
+                                ) : (
+                                    <span>
+                                        <FontAwesomeIcon
+                                            icon={faPowerOff}
+                                            beatFade
+                                            size="lg"
+                                        />
+                                    </span>
+                                )}
                             </span>
                         </Tooltip>
                     </div>

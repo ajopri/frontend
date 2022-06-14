@@ -15,6 +15,8 @@ import useSAP from '@/lib/sap'
 import Processing from '@/components/Layouts/Processing'
 import BtnAccordion from '@/components/Button/BtnAccordion'
 import { paginate } from '@/utils/paginate'
+import { useSortableData } from '@/utils/sortable'
+import Sorting from '@/components/Button/Sorting'
 
 const Bar = dynamic(() => import('@/components/Graph/Bar'), {
     ssr: false,
@@ -190,6 +192,16 @@ function Orders({ datas, loading }) {
     if (loading) return <Processing />
     if (!datas || datas.length < 0) return <p>No data</p>
 
+    const { items, requestSort, sortConfig } = useSortableData(datas, {
+        direction: 'descending',
+    })
+    const getClassNamesFor = name => {
+        if (!sortConfig) {
+            return ''
+        }
+        return sortConfig.key === name ? sortConfig.direction : undefined
+    }
+
     const [currentPage, setCurrentPage] = useState(1)
     const pageSize = 11
 
@@ -197,22 +209,32 @@ function Orders({ datas, loading }) {
 
     const pages = _.range(1, pageCount + 1)
 
-    const paginateOrders = paginate(datas, currentPage, pageSize)
+    const paginateOrders = paginate(items, currentPage, pageSize)
 
     return (
-        <div className="flex flex-col rounded-lg pt-2">
+        <div className="flex flex-col pt-2 rounded-lg">
             <div className="flex-grow rounded-md border-[1px]">
                 <table className="w-full text-xs">
                     <thead>
                         <tr className="text-left uppercase">
-                            <th className="sticky top-0 w-3 px-6 py-3 text-gray-400 bg-gray-100" />
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100">
-                                p/o#
+                            <th className="sticky top-0 w-1/12 px-6 py-3 text-gray-400 bg-gray-100" />
+                            <th className="sticky top-0 w-4/12 px-6 py-3 font-semibold text-gray-500 bg-gray-100">
+                                <Sorting
+                                    handleClick={() => requestSort('poNumber')}
+                                    className={getClassNamesFor('poNumber')}>
+                                    P/O#
+                                </Sorting>
                             </th>
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100">
-                                po received
+                            <th className="sticky top-0 w-4/12 px-6 py-3 font-semibold text-gray-500 bg-gray-100">
+                                <Sorting
+                                    handleClick={() =>
+                                        requestSort('poReceived')
+                                    }
+                                    className={getClassNamesFor('poReceived')}>
+                                    po received
+                                </Sorting>
                             </th>
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100">
+                            <th className="sticky top-0 w-3/12 px-6 py-3 font-semibold text-gray-500 bg-gray-100">
                                 po status
                             </th>
                         </tr>
@@ -234,7 +256,7 @@ function Orders({ datas, loading }) {
                     </tbody>
                 </table>
             </div>
-            <div className="p-3 flex justify-center">
+            <div className="flex justify-center p-3">
                 <Pagination
                     total={pages.length}
                     page={currentPage}
@@ -372,7 +394,7 @@ function TableInv({ invoices, loading }) {
                     </tbody>
                 </table>
             </div>
-            <div className="p-3 flex justify-center">
+            <div className="flex justify-center p-3">
                 <Pagination
                     total={pages.length}
                     page={currentPage}
@@ -574,7 +596,7 @@ export default function Index() {
             <Maintitle title="Dashboard" />
             <div className="flex gap-2">
                 {/* Open Orders */}
-                <div className="w-4/6 space-y-3 max-h-screen">
+                <div className="w-4/6 max-h-screen space-y-3">
                     <Subtitle
                         title="Open Orders"
                         content="Only outstanding & unfulfilled orders are displayed."
@@ -646,7 +668,7 @@ export default function Index() {
                 </div>
 
                 {/* Total outstanding payables */}
-                <div className="w-2/6 space-y-3 max-h-screen">
+                <div className="w-2/6 max-h-screen space-y-3">
                     <Subtitle
                         title="Total Outstanding Payables"
                         content="Only outstanding & overdue invoices are displayed."

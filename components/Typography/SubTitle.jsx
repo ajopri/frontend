@@ -11,7 +11,7 @@ export default function Subtitle({ title, ...tooltip }) {
                 placement={tooltip.placement}
                 css={tooltip.css}>
                 <span className="ml-2 text-gray-400">
-                    <FontAwesomeIcon icon={faCircleInfo} />
+                    <FontAwesomeIcon icon={faCircleInfo} size="sm" />
                 </span>
             </Tooltip>
         </div>

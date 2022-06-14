@@ -38,6 +38,9 @@ module.exports = {
                 'btn-accordion': '#7DB737',
                 'green-light': '#DDEEC6',
                 'green-dark': '#2E6D11',
+                'green-active': '#2A854E',
+                'green-active-inner': '#E1FAEB',
+                'green-active-outer': '#7DDBA3',
             },
             fontFamily: {
                 sans: ['Poppins', 'sans-serif'],

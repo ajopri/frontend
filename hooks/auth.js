@@ -44,14 +44,35 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     }
 
     // set Token SAP
-    const sapToken = async ({ setErrors, setStatus }) => {
+    // const sapToken = async ({ setErrors, setStatus }) => {
+    //     const sapURL = process.env.NEXT_PUBLIC_SAP_API_URL
+    //     const usernameSAP = process.env.NEXT_PUBLIC_SAP_USERNAME
+    //     const passwordSAP = process.env.NEXT_PUBLIC_SAP_PASSWORD
+    //     const sapAPI = Axios.create({ baseURL: sapURL })
+
+    //     setErrors([])
+    //     setStatus(null)
+
+    //     sapAPI
+    //         .post('/Auth/Login', {
+    //             userName: usernameSAP,
+    //             password: passwordSAP,
+    //         })
+    //         .then(res => {
+    //             Cookies.set('SAP-TOKEN', res.data.token, res.data.expire)
+    //         })
+    //         .catch(error => {
+    //             if (error.response.status !== 422) throw error
+
+    //             setErrors(Object.values(error.response.data.errors).flat())
+    //             logout()
+    //         })
+    // }
+    const setSAPToken = useCallback(async () => {
         const sapURL = process.env.NEXT_PUBLIC_SAP_API_URL
         const usernameSAP = process.env.NEXT_PUBLIC_SAP_USERNAME
         const passwordSAP = process.env.NEXT_PUBLIC_SAP_PASSWORD
         const sapAPI = Axios.create({ baseURL: sapURL })
-
-        setErrors([])
-        setStatus(null)
 
         sapAPI
             .post('/Auth/Login', {
@@ -59,15 +80,15 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
                 password: passwordSAP,
             })
             .then(res => {
+                if (!res.data.token) logout()
+
                 Cookies.set('SAP-TOKEN', res.data.token, res.data.expire)
             })
             .catch(error => {
                 if (error.response.status !== 422) throw error
-
-                setErrors(Object.values(error.response.data.errors).flat())
                 logout()
             })
-    }
+    })
 
     // Login
     const login = async ({ setErrors, setStatus, setIsLoading, ...props }) => {
@@ -83,10 +104,12 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
                     Cookies.set('rcc', res.group.rcc, { expires: 1 })
                     Cookies.set('custgroup', res.group.name, { expires: 1 })
                 })
+                .then(() => setSAPToken())
                 .catch(error => {
+                    console.log(error)
                     if (!error.response.success) throw error
 
-                    // setErrors(Object.values(error.response.data.errors).flat())
+                    setErrors(Object.values(error.response.data.errors).flat())
 
                     setIsLoading(false)
                 })
@@ -94,6 +117,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             axios
                 .post('/admin/login', props)
                 .then(() => mutate())
+                .then(() => setSAPToken())
                 .catch(error => {
                     if (error.response.status !== 422) throw error
 
@@ -196,7 +220,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
         user,
         register,
         login,
-        sapToken,
+        // sapToken,
         forgotPassword,
         resetPassword,
         resendEmailVerification,

@@ -22,7 +22,7 @@ export default function Login() {
     const [isLoading, setIsLoading] = useState(false)
 
     // Auth hook
-    const { login, sapToken } = useAuth({
+    const { login } = useAuth({
         middleware: 'guest',
         redirectIfAuthenticated: '/admin/manage-users',
     })
@@ -42,7 +42,7 @@ export default function Login() {
         event.preventDefault()
         setIsLoading(true)
         login({ email, password, isAdmin, setErrors, setStatus, setIsLoading })
-        sapToken({ setErrors, setStatus })
+        // sapToken({ setErrors, setStatus })
     }
 
     return (
