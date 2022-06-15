@@ -3,22 +3,25 @@ import {
     faBoxOpen,
     faCalendarCheck,
     faCalendarWeek,
-    faChevronDown,
     faCircleInfo,
     faDownload,
     faSearch,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Tooltip } from '@nextui-org/react'
+import { Pagination, Tooltip } from '@nextui-org/react'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Cookies from 'js-cookie'
+import _ from 'lodash'
 import Mainlayout from '@/components/Layouts/MainLayout'
 import Card from '@/components/Card/Card'
 import useSAP from '@/lib/sap'
 import Maintitle from '@/components/Typography/MainTitle'
 import Processing from '@/components/Layouts/Processing'
 import BtnAccordion from '@/components/Button/BtnAccordion'
+import { useSortableData } from '@/utils/sortable'
+import Sorting from '@/components/Button/Sorting'
+import { paginate } from '@/utils/paginate'
 
 const tooltips = (
     <span>
@@ -45,7 +48,7 @@ function LinkDownload({ link, label }) {
     if (link) {
         return (
             <Link href={link} passHref>
-                <span className="px-2 py-1 font-semibold text-green-dark bg-green-light rounded cursor-pointer whitespace-nowrap">
+                <span className="px-2 py-1 font-semibold rounded cursor-pointer text-green-dark bg-green-light whitespace-nowrap">
                     <FontAwesomeIcon icon={faDownload} /> {label}
                 </span>
             </Link>
@@ -77,39 +80,75 @@ function renderDateReceive(str) {
 }
 
 // Order by item start
-function OrderByPo({ items, loading }) {
+function OrderByPo({ datas, loading }) {
     if (loading) return <Processing />
-    if (!items) return <p>No data</p>
+    if (!datas) return <p>No data</p>
 
-    const [isExpanded, setIsExpanded] = useState(false)
-
-    const handleClick = () => {
-        setIsExpanded(() => !isExpanded)
+    const { items, requestSort, sortConfig } = useSortableData(datas, {
+        direction: 'descending',
+    })
+    const getClassNamesFor = name => {
+        if (!sortConfig) {
+            return ''
+        }
+        return sortConfig.key === name ? sortConfig.direction : undefined
     }
+    const [currentPage, setCurrentPage] = useState(1)
+    const pageSize = 10
+
+    const pageCount = datas.length / pageSize
+
+    const pages = _.range(1, pageCount + 1)
+
+    const paginateOrderByPo = paginate(items, currentPage, pageSize)
     return (
         <div className="flex h-[73vh] flex-col rounded-lg">
             <div className="flex-grow overflow-auto rounded-md border-[1px]">
                 <table className="relative w-full text-xs">
                     <thead>
                         <tr className="text-left uppercase">
-                            <th className="sticky top-0 w-3 px-6 py-3 text-gray-400 bg-gray-100" />
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100">
-                                po
+                            <th className="sticky top-0 w-3 px-6 py-3 font-semibold text-gray-500 bg-gray-100" />
+                            <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100">
+                                <Sorting
+                                    handleClick={() => requestSort('poNumber')}
+                                    className={getClassNamesFor('poNumber')}>
+                                    po
+                                </Sorting>
                             </th>
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100">
-                                po received
+                            <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100">
+                                <Sorting
+                                    handleClick={() =>
+                                        requestSort('poReceived')
+                                    }
+                                    className={getClassNamesFor('poReceived')}>
+                                    po received
+                                </Sorting>
                             </th>
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100">
+                            <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100">
                                 status
                             </th>
                         </tr>
                     </thead>
                     <tbody className="bg-white-100">
-                        {items.map((data, idx) => (
-                            <ItemByPo key={idx} data={data} />
-                        ))}
+                        {paginateOrderByPo &&
+                            paginateOrderByPo.map((data, idx) => (
+                                <ItemByPo key={idx} data={data} />
+                            ))}
                     </tbody>
                 </table>
+            </div>
+            <div className="flex justify-center p-3">
+                <Pagination
+                    total={pages.length}
+                    page={currentPage}
+                    initialPage={1}
+                    color="secondary"
+                    size="sm"
+                    shadow
+                    siblings={2}
+                    noMargin
+                    onChange={page => setCurrentPage(page)}
+                />
             </div>
         </div>
     )
@@ -160,6 +199,15 @@ function OrderDetailByPo({ parentExpanded, details }) {
             {val}
         </span>
     )
+    const { items, requestSort, sortConfig } = useSortableData(details, {
+        direction: 'descending',
+    })
+    const getClassNamesFor = name => {
+        if (!sortConfig) {
+            return ''
+        }
+        return sortConfig.key === name ? sortConfig.direction : undefined
+    }
 
     return (
         <tr>
@@ -170,7 +218,11 @@ function OrderDetailByPo({ parentExpanded, details }) {
                     <thead>
                         <tr className="border-b-[1px] border-gray-200 bg-gray-50 text-left uppercase text-gray-400">
                             <th className="px-3 py-2 rounded-tl-md">
-                                item name
+                                <Sorting
+                                    handleClick={() => requestSort('itemName')}
+                                    className={getClassNamesFor('itemName')}>
+                                    item name
+                                </Sorting>
                             </th>
                             <th className="px-3 py-2">open qty</th>
                             <th className="px-3 py-2">total qty</th>
@@ -183,55 +235,60 @@ function OrderDetailByPo({ parentExpanded, details }) {
                         </tr>
                     </thead>
                     <tbody>
-                        {details.map((detail, idx) => (
-                            <tr
-                                key={idx}
-                                className="border-b-[1px] border-gray-200 bg-white">
-                                <td className="px-3 py-2">{detail.itemName}</td>
-                                <td className="px-3 py-2">{`${detail.openQty.toLocaleString()} ${
-                                    detail.uoM
-                                }`}</td>
-                                <td className="px-3 py-2">
-                                    {`${detail.totalQty.toLocaleString()} ${
+                        {items &&
+                            items.map((detail, idx) => (
+                                <tr
+                                    key={idx}
+                                    className="border-b-[1px] border-gray-200 bg-white">
+                                    <td className="px-3 py-2">
+                                        {detail.itemName}
+                                    </td>
+                                    <td className="px-3 py-2">{`${detail.openQty.toLocaleString()} ${
                                         detail.uoM
-                                    }`}
-                                </td>
-                                <td className="px-3 py-2">
-                                    {`${
-                                        detail.currency
-                                    } ${detail.unitPrice.toLocaleString()}/${
-                                        detail.uoM
-                                    }`}
-                                </td>
-                                <td className="px-3 py-2">
-                                    {`${
-                                        detail.currency
-                                    } $${detail.totalInvoice.toLocaleString()}`}
-                                </td>
-                                <td className="px-3 py-2">
-                                    {renderStat(detail.itemStatus)}
-                                </td>
-                                <td
-                                    className={`px-3 py-2 ${renderColor(
-                                        detail.activityDate,
-                                        detail.activity,
-                                    )}`}>
-                                    {detail.activityDate.slice(0, 10) !==
-                                    '1900-01-01'
-                                        ? detail.activityDate.slice(0, 10) !==
-                                          '0001-01-01'
-                                            ? `${renderDateReceive(
-                                                  detail.activityDate,
-                                              )}-${Number(
-                                                  detail.activityQty,
-                                              ).toLocaleString()}${
-                                                  detail.uoM
-                                              } ${detail.activity}`
-                                            : '-'
-                                        : '-'}
-                                </td>
-                            </tr>
-                        ))}
+                                    }`}</td>
+                                    <td className="px-3 py-2">
+                                        {`${detail.totalQty.toLocaleString()} ${
+                                            detail.uoM
+                                        }`}
+                                    </td>
+                                    <td className="px-3 py-2">
+                                        {`${
+                                            detail.currency
+                                        } ${detail.unitPrice.toLocaleString()}/${
+                                            detail.uoM
+                                        }`}
+                                    </td>
+                                    <td className="px-3 py-2">
+                                        {`${
+                                            detail.currency
+                                        } $${detail.totalInvoice.toLocaleString()}`}
+                                    </td>
+                                    <td className="px-3 py-2">
+                                        {renderStat(detail.itemStatus)}
+                                    </td>
+                                    <td
+                                        className={`px-3 py-2 ${renderColor(
+                                            detail.activityDate,
+                                            detail.activity,
+                                        )}`}>
+                                        {detail.activityDate.slice(0, 10) !==
+                                        '1900-01-01'
+                                            ? detail.activityDate.slice(
+                                                  0,
+                                                  10,
+                                              ) !== '0001-01-01'
+                                                ? `${renderDateReceive(
+                                                      detail.activityDate,
+                                                  )}-${Number(
+                                                      detail.activityQty,
+                                                  ).toLocaleString()}${
+                                                      detail.uoM
+                                                  } ${detail.activity}`
+                                                : '-'
+                                            : '-'}
+                                    </td>
+                                </tr>
+                            ))}
                     </tbody>
                 </table>
             </td>
@@ -241,33 +298,70 @@ function OrderDetailByPo({ parentExpanded, details }) {
 // Order by item end
 
 // Order by item start
-function OrderByItem({ items, loading }) {
+function OrderByItem({ datas, loading }) {
     if (loading) return <Processing />
-    if (!items) return <p>No data</p>
+    if (!datas) return <p>No data</p>
+
+    const { items, requestSort, sortConfig } = useSortableData(datas, {
+        direction: 'descending',
+    })
+    const getClassNamesFor = name => {
+        if (!sortConfig) {
+            return ''
+        }
+        return sortConfig.key === name ? sortConfig.direction : undefined
+    }
+    const [currentPage, setCurrentPage] = useState(1)
+    const pageSize = 10
+
+    const pageCount = datas.length / pageSize
+
+    const pages = _.range(1, pageCount + 1)
+
+    const paginateOrderByItem = paginate(items, currentPage, pageSize)
+
     return (
         <div className="flex h-[73vh] flex-col rounded-lg">
             <div className="flex-grow overflow-auto rounded-md border-[1px]">
                 <table className="relative w-full text-xs">
                     <thead>
-                        <tr className="text-left uppercase">
-                            <th className="sticky top-0 w-3 px-6 py-3 text-gray-400 bg-gray-100" />
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100">
-                                name
+                        <tr className="font-semibold text-left text-gray-500 uppercase">
+                            <th className="sticky top-0 w-3 px-6 py-3 bg-gray-100" />
+                            <th className="sticky top-0 px-6 py-3 bg-gray-100">
+                                <Sorting
+                                    handleClick={() => requestSort('itemName')}
+                                    className={getClassNamesFor('itemName')}>
+                                    name
+                                </Sorting>
                             </th>
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100">
+                            <th className="sticky top-0 px-6 py-3 bg-gray-100">
                                 status
                             </th>
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100">
+                            <th className="sticky top-0 px-6 py-3 bg-gray-100">
                                 download
                             </th>
                         </tr>
                     </thead>
                     <tbody className="bg-white-100">
-                        {items.map((data, idx) => (
-                            <ItemsByItem key={idx} data={data} />
-                        ))}
+                        {paginateOrderByItem &&
+                            paginateOrderByItem.map((data, idx) => (
+                                <ItemsByItem key={idx} data={data} />
+                            ))}
                     </tbody>
                 </table>
+            </div>
+            <div className="flex justify-center p-3">
+                <Pagination
+                    total={pages.length}
+                    page={currentPage}
+                    initialPage={1}
+                    color="secondary"
+                    size="sm"
+                    shadow
+                    siblings={2}
+                    noMargin
+                    onChange={page => setCurrentPage(page)}
+                />
             </div>
         </div>
     )
@@ -328,7 +422,7 @@ function OrderDetailByItem({ parentExpanded, details }) {
                 <div className="rounded-sm border-[1px]">
                     <table className="w-full">
                         <thead>
-                            <tr className="border-b-[1px] border-gray-200 bg-gray-50 text-left uppercase text-gray-400">
+                            <tr className="border-b-[1px] text-xs font-semibold border-gray-200 bg-gray-50 text-left uppercase text-gray-400">
                                 <th className="px-3 py-2 rounded-tl-md">
                                     P/O#
                                 </th>
@@ -344,64 +438,69 @@ function OrderDetailByItem({ parentExpanded, details }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {details.map((detail, idx) => (
-                                <tr
-                                    key={idx}
-                                    className="border-b-[1px] border-gray-200 bg-white hover:bg-gray-100">
-                                    <td className="px-3 py-2 text-blue-500">
-                                        {detail.poNumber}
-                                    </td>
-                                    <td className="px-3 py-2">
-                                        {renderDateReceive(detail.poReceived)}
-                                    </td>
-                                    <td className="px-3 py-2">
-                                        {`${detail.openQty.toLocaleString()} ${
-                                            detail.uoM
-                                        }`}
-                                    </td>
-                                    <td className="px-3 py-2">
-                                        {`${detail.totalQty.toLocaleString()} ${
-                                            detail.uoM
-                                        }`}
-                                    </td>
-                                    <td className="px-3 py-2">
-                                        {`${
-                                            detail.currency
-                                        } $${detail.unitPrice.toLocaleString()}/${
-                                            detail.uoM
-                                        }`}
-                                    </td>
-                                    <td className="px-3 py-2">
-                                        {`${
-                                            detail.currency
-                                        } $${detail.totalInvoice.toLocaleString()}`}
-                                    </td>
-                                    <td className="px-3 py-2">
-                                        {renderStat(detail.itemStatus)}
-                                    </td>
-                                    <td
-                                        className={`px-3 py-2 ${renderColor(
-                                            detail.activityDate,
-                                            detail.activity,
-                                        )}`}>
-                                        {detail.activityDate.slice(0, 10) !==
-                                        '1900-01-01'
-                                            ? detail.activityDate.slice(
-                                                  0,
-                                                  10,
-                                              ) !== '0001-01-01'
-                                                ? `${renderDateReceive(
-                                                      detail.activityDate,
-                                                  )}-${Number(
-                                                      detail.activityQty,
-                                                  ).toLocaleString()}${
-                                                      detail.uoM
-                                                  } ${detail.activity}`
-                                                : '-'
-                                            : '-'}
-                                    </td>
-                                </tr>
-                            ))}
+                            {details &&
+                                details.map((detail, idx) => (
+                                    <tr
+                                        key={idx}
+                                        className="border-b-[1px] border-gray-200 bg-white hover:bg-gray-100">
+                                        <td className="px-3 py-2 text-blue-500">
+                                            {detail.poNumber}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            {renderDateReceive(
+                                                detail.poReceived,
+                                            )}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            {`${detail.openQty.toLocaleString()} ${
+                                                detail.uoM
+                                            }`}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            {`${detail.totalQty.toLocaleString()} ${
+                                                detail.uoM
+                                            }`}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            {`${
+                                                detail.currency
+                                            } $${detail.unitPrice.toLocaleString()}/${
+                                                detail.uoM
+                                            }`}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            {`${
+                                                detail.currency
+                                            } $${detail.totalInvoice.toLocaleString()}`}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            {renderStat(detail.itemStatus)}
+                                        </td>
+                                        <td
+                                            className={`px-3 py-2 ${renderColor(
+                                                detail.activityDate,
+                                                detail.activity,
+                                            )}`}>
+                                            {detail.activityDate.slice(
+                                                0,
+                                                10,
+                                            ) !== '1900-01-01'
+                                                ? detail.activityDate.slice(
+                                                      0,
+                                                      10,
+                                                  ) !== '0001-01-01'
+                                                    ? `${renderDateReceive(
+                                                          detail.activityDate,
+                                                      )}-${Number(
+                                                          detail.activityQty,
+                                                      ).toLocaleString()}${
+                                                          detail.uoM
+                                                      } ${detail.activity}`
+                                                    : '-'
+                                                : '-'}
+                                        </td>
+                                    </tr>
+                                ))}
                         </tbody>
                     </table>
                 </div>
@@ -665,7 +764,7 @@ export default function OrderManagement() {
                                                     : 'hidden'
                                             }>
                                             <OrderByItem
-                                                items={filteredListItem}
+                                                datas={filteredListItem}
                                                 loading={isLoadingByItem}
                                             />
                                         </div>
@@ -674,7 +773,7 @@ export default function OrderManagement() {
                                                 openTab === 'po' ? '' : 'hidden'
                                             }>
                                             <OrderByPo
-                                                items={filteredListPo}
+                                                datas={filteredListPo}
                                                 loading={isLoadingByPo}
                                             />
                                         </div>

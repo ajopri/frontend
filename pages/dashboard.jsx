@@ -95,54 +95,57 @@ function OrderDetails({ parentExpanded, details }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {details.map((detail, idx) => (
-                                <tr
-                                    key={idx}
-                                    className="border-b-[1px] border-gray-200 bg-white hover:bg-gray-100">
-                                    <td className="px-3 py-2">
-                                        {detail.itemName}
-                                    </td>
-                                    <td className="px-3 py-2">
-                                        {`${detail.openQty.toLocaleString()} ${
-                                            detail.uoM
-                                        }`}
-                                    </td>
-                                    <td className="px-3 py-2">
-                                        {`${detail.totalQty.toLocaleString()} ${
-                                            detail.uoM
-                                        }`}
-                                    </td>
-                                    <td className="px-3 py-2">
-                                        {`${
-                                            detail.currency
-                                        } $${detail.totalInvoice.toLocaleString()}`}
-                                    </td>
-                                    <td className="px-3 py-2">
-                                        {renderStat(detail.itemStatus)}
-                                    </td>
-                                    <td
-                                        className={`px-3 py-2 ${renderColor(
-                                            detail.activityDate,
-                                            detail.activity,
-                                        )}`}>
-                                        {detail.activityDate.slice(0, 10) !==
-                                        '1900-01-01'
-                                            ? detail.activityDate.slice(
-                                                  0,
-                                                  10,
-                                              ) !== '0001-01-01'
-                                                ? `${renderDateReceive(
-                                                      detail.activityDate,
-                                                  )}-${Number(
-                                                      detail.activityQty,
-                                                  ).toLocaleString()}${
-                                                      detail.uoM
-                                                  } ${detail.activity}`
-                                                : '-'
-                                            : '-'}
-                                    </td>
-                                </tr>
-                            ))}
+                            {details &&
+                                details.map((detail, idx) => (
+                                    <tr
+                                        key={idx}
+                                        className="border-b-[1px] border-gray-200 bg-white hover:bg-gray-100">
+                                        <td className="px-3 py-2">
+                                            {detail.itemName}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            {`${detail.openQty.toLocaleString()} ${
+                                                detail.uoM
+                                            }`}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            {`${detail.totalQty.toLocaleString()} ${
+                                                detail.uoM
+                                            }`}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            {`${
+                                                detail.currency
+                                            } $${detail.totalInvoice.toLocaleString()}`}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            {renderStat(detail.itemStatus)}
+                                        </td>
+                                        <td
+                                            className={`px-3 py-2 ${renderColor(
+                                                detail.activityDate,
+                                                detail.activity,
+                                            )}`}>
+                                            {detail.activityDate.slice(
+                                                0,
+                                                10,
+                                            ) !== '1900-01-01'
+                                                ? detail.activityDate.slice(
+                                                      0,
+                                                      10,
+                                                  ) !== '0001-01-01'
+                                                    ? `${renderDateReceive(
+                                                          detail.activityDate,
+                                                      )}-${Number(
+                                                          detail.activityQty,
+                                                      ).toLocaleString()}${
+                                                          detail.uoM
+                                                      } ${detail.activity}`
+                                                    : '-'
+                                                : '-'}
+                                        </td>
+                                    </tr>
+                                ))}
                         </tbody>
                     </table>
                 </div>
@@ -241,6 +244,7 @@ function Orders({ datas, loading }) {
                     </thead>
                     <tbody className="bg-white-100">
                         {paginateOrders.length > 0 ? (
+                            paginateOrders &&
                             paginateOrders.map((item, idx) => (
                                 <Items key={idx} data={item} />
                             ))
@@ -360,6 +364,7 @@ function TableInv({ invoices, loading }) {
                     </thead>
                     <tbody>
                         {paginateInvoices.length > 0 ? (
+                            paginateInvoices &&
                             paginateInvoices.map((inv, idx) => (
                                 <tr key={idx} className="hover:bg-gray-100">
                                     <td className="px-3 py-2">
@@ -675,16 +680,17 @@ export default function Index() {
                         placement="top"
                     />
                     <div className="flex gap-2">
-                        {outstandings.map((detail, idx) => (
-                            <div key={idx} className="w-1/2">
-                                <Card>
-                                    <Account
-                                        detail={detail}
-                                        loading={isLoadingOutstanding}
-                                    />
-                                </Card>
-                            </div>
-                        ))}
+                        {outstandings &&
+                            outstandings.map((detail, idx) => (
+                                <div key={idx} className="w-1/2">
+                                    <Card>
+                                        <Account
+                                            detail={detail}
+                                            loading={isLoadingOutstanding}
+                                        />
+                                    </Card>
+                                </div>
+                            ))}
                     </div>
                     <Card>
                         <div className="flex flex-col">

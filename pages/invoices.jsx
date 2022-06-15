@@ -1,6 +1,5 @@
 import {
     faCheckCircle,
-    faChevronDown,
     faEnvelope,
     faExclamationTriangle,
     faMoneyCheckAlt,
@@ -9,7 +8,6 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import ReactCountryFlag from 'react-country-flag'
-import { Tooltip } from '@nextui-org/react'
 import Link from 'next/link'
 import Cookies from 'js-cookie'
 import Maintitle from '@/components/Typography/MainTitle'
@@ -42,7 +40,7 @@ function LinkDownload({ link, label }) {
     if (link) {
         return (
             <Link href={link} passHref>
-                <span className="px-2 py-1 font-semibold text-green-dark bg-green-light rounded cursor-pointer whitespace-nowrap hidden group-hover:block">
+                <span className="hidden px-2 py-1 font-semibold rounded cursor-pointer text-green-dark bg-green-light whitespace-nowrap group-hover:block">
                     <FontAwesomeIcon icon={faEnvelope} /> {label}
                 </span>
             </Link>
@@ -101,27 +99,28 @@ function InvoiceDetails({ parentExpanded, details }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {details.map((detail, idx) => (
-                                <tr
-                                    key={idx}
-                                    className="border-b-[1px] border-gray-200 bg-white hover:bg-gray-100">
-                                    <td className="px-3 py-2 text-blue-500">
-                                        {detail.itemCode}
-                                    </td>
-                                    <td className="px-3 py-2">
-                                        {detail.itemName}
-                                    </td>
-                                    <td className="px-3 py-2 text-blue-500">
-                                        {detail.poNumber}
-                                    </td>
-                                    <td className="px-3 py-2">
-                                        {`${detail.unitPrice.toLocaleString()}/${detail.uoM.toLowerCase()}`}
-                                    </td>
-                                    <td className="px-3 py-2">
-                                        {detail.lineTotal.toLocaleString()}
-                                    </td>
-                                </tr>
-                            ))}
+                            {details &&
+                                details.map((detail, idx) => (
+                                    <tr
+                                        key={idx}
+                                        className="border-b-[1px] border-gray-200 bg-white hover:bg-gray-100">
+                                        <td className="px-3 py-2 text-blue-500">
+                                            {detail.itemCode}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            {detail.itemName}
+                                        </td>
+                                        <td className="px-3 py-2 text-blue-500">
+                                            {detail.poNumber}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            {`${detail.unitPrice.toLocaleString()}/${detail.uoM.toLowerCase()}`}
+                                        </td>
+                                        <td className="px-3 py-2">
+                                            {detail.lineTotal.toLocaleString()}
+                                        </td>
+                                    </tr>
+                                ))}
                         </tbody>
                     </table>
                 </div>
@@ -219,32 +218,33 @@ function Listinvoices({ datas, loading }) {
                 <table className="relative w-full text-xs">
                     <thead>
                         <tr className="text-left uppercase">
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100" />
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100">
+                            <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100" />
+                            <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100">
                                 invoice#
                             </th>
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100">
+                            <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100">
                                 issue date
                             </th>
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100">
+                            <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100">
                                 due date
                             </th>
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100">
+                            <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100">
                                 status
                             </th>
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100">
+                            <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100">
                                 due in
                             </th>
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100">
+                            <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100">
                                 amount due
                             </th>
-                            <th className="sticky top-0 px-6 py-3 text-gray-400 bg-gray-100 w-52" />
+                            <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100 w-52" />
                         </tr>
                     </thead>
                     <tbody className="bg-white-100">
-                        {datas.map((data, idx) => (
-                            <Item key={idx} data={data} />
-                        ))}
+                        {datas &&
+                            datas.map((data, idx) => (
+                                <Item key={idx} data={data} />
+                            ))}
                     </tbody>
                 </table>
             </div>
@@ -480,16 +480,21 @@ export default function Invoices() {
                                 placement="top"
                             />
                             <div className="flex flex-wrap space-x-3 sm:flex-nowrap">
-                                {outstandings.map((detail, idx) => (
-                                    <div key={idx} className="w-full sm:w-1/2">
-                                        <Card>
-                                            <Account
-                                                detail={detail}
-                                                loading={isLoadingOutstanding}
-                                            />
-                                        </Card>
-                                    </div>
-                                ))}
+                                {outstandings &&
+                                    outstandings.map((detail, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="w-full sm:w-1/2">
+                                            <Card>
+                                                <Account
+                                                    detail={detail}
+                                                    loading={
+                                                        isLoadingOutstanding
+                                                    }
+                                                />
+                                            </Card>
+                                        </div>
+                                    ))}
                             </div>
                         </div>
                     </div>
@@ -540,7 +545,7 @@ export default function Invoices() {
                                     ))}
                                 </ul>
                                 <div>
-                                    <span className="absolute text-gray-300 transform translate-y-1/2 pointer-events-none text-xs">
+                                    <span className="absolute text-xs text-gray-300 transform translate-y-1/2 pointer-events-none">
                                         <FontAwesomeIcon icon={faSearch} />
                                     </span>
                                     <Searchinput
@@ -587,33 +592,36 @@ export default function Invoices() {
                             width: 'fit-content',
                         }}
                     />
-                    <div className="flex flex-wrap h-max space-x-3 sm:flex-nowrap">
+                    <div className="flex flex-wrap space-x-3 h-max sm:flex-nowrap">
                         <Card>
                             <div className="flex items-center justify-between">
                                 <ul
                                     className="flex flex-row flex-wrap w-full m-0 list-none bg-gray-600"
                                     role="tablist">
-                                    {outstandings.map((os, idx) => (
-                                        <li
-                                            key={idx}
-                                            className={`${
-                                                openStateTab === os.currency
-                                                    ? 'text-gray-600 bg-white'
-                                                    : 'text-white'
-                                            } flex-auto text-center last:mr-0 border-[1px] border-gray-600 px-4 py-2`}>
-                                            <a
-                                                className="block h-full text-xs font-bold leading-normal"
-                                                onClick={e => {
-                                                    e.preventDefault()
-                                                    setOpenStateTab(os.currency)
-                                                }}
-                                                data-toggle="tab"
-                                                href={`#${os.currency.toLowerCase()}`}
-                                                role="tablist">
-                                                {os.currency}
-                                            </a>
-                                        </li>
-                                    ))}
+                                    {outstandings &&
+                                        outstandings.map((os, idx) => (
+                                            <li
+                                                key={idx}
+                                                className={`${
+                                                    openStateTab === os.currency
+                                                        ? 'text-gray-600 bg-white'
+                                                        : 'text-white'
+                                                } flex-auto text-center last:mr-0 border-[1px] border-gray-600 px-4 py-2`}>
+                                                <a
+                                                    className="block h-full text-xs font-bold leading-normal"
+                                                    onClick={e => {
+                                                        e.preventDefault()
+                                                        setOpenStateTab(
+                                                            os.currency,
+                                                        )
+                                                    }}
+                                                    data-toggle="tab"
+                                                    href={`#${os.currency.toLowerCase()}`}
+                                                    role="tablist">
+                                                    {os.currency}
+                                                </a>
+                                            </li>
+                                        ))}
                                 </ul>
                             </div>
                         </Card>
