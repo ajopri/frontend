@@ -10,6 +10,8 @@ import { useEffect, useState } from 'react'
 import ReactCountryFlag from 'react-country-flag'
 import Link from 'next/link'
 import Cookies from 'js-cookie'
+import _ from 'lodash'
+import { Pagination } from '@nextui-org/react'
 import Maintitle from '@/components/Typography/MainTitle'
 import Subtitle from '@/components/Typography/SubTitle'
 import Card from '@/components/Card/Card'
@@ -18,6 +20,10 @@ import Searchinput from '@/components/Inputs/SearchInput'
 import Mainlayout from '@/components/Layouts/MainLayout'
 import Processing from '@/components/Layouts/Processing'
 import BtnAccordion from '@/components/Button/BtnAccordion'
+import { useSortableData } from '@/utils/sortable'
+import { paginate } from '@/utils/paginate'
+import Sorting from '@/components/Button/Sorting'
+import ModalRequestInvoice from '@/components/Modals/ModalRequestInvoice'
 
 const renderDue = (val, stat) => (
     <span
@@ -36,16 +42,14 @@ const renderDue = (val, stat) => (
     </span>
 )
 
-function LinkDownload({ link, label }) {
-    if (link) {
-        return (
-            <Link href={link} passHref>
-                <span className="hidden px-2 py-1 font-semibold rounded cursor-pointer text-green-dark bg-green-light whitespace-nowrap group-hover:block">
-                    <FontAwesomeIcon icon={faEnvelope} /> {label}
-                </span>
-            </Link>
-        )
-    }
+function LinkDownload({ label, ...props }) {
+    return (
+        <div onClick={props.onClick}>
+            <span className="hidden px-2 py-1 font-semibold rounded cursor-pointer text-green-dark bg-green-light whitespace-nowrap group-hover:block">
+                <FontAwesomeIcon icon={faEnvelope} /> {label}
+            </span>
+        </div>
+    )
 }
 
 function Account({ detail, loading }) {
@@ -129,8 +133,9 @@ function InvoiceDetails({ parentExpanded, details }) {
     )
 }
 
-function Item({ data }) {
+function Item({ data, handlerModal }) {
     const [isExpanded, setIsExpanded] = useState(false)
+    const [invNumb, setinvNumb] = useState('')
 
     const handleClick = () => {
         setIsExpanded(() => !isExpanded)
@@ -197,7 +202,13 @@ function Item({ data }) {
                     {`${data.currency} ${data.amountDue.toLocaleString()}`}
                 </td>
                 <td className="whitespace-nowrap px-6 py-1.5 text-center">
-                    <LinkDownload link="#" label="REQUEST INVOICE" />{' '}
+                    <LinkDownload
+                        link="#"
+                        onClick={() => {
+                            handlerModal(data.invNumber)
+                        }}
+                        label="REQUEST INVOICE"
+                    />{' '}
                 </td>
             </tr>
 
@@ -209,44 +220,99 @@ function Item({ data }) {
     )
 }
 
-function Listinvoices({ datas, loading }) {
+function Listinvoices({ datas, handlerModal, loading }) {
     if (loading) return <Processing />
     if (!datas) return <p>No data</p>
+
+    const { items, requestSort, sortConfig } = useSortableData(datas, {
+        direction: 'descending',
+    })
+    const getClassNamesFor = name => {
+        if (!sortConfig) {
+            return ''
+        }
+        return sortConfig.key === name ? sortConfig.direction : undefined
+    }
+    const [currentPage, setCurrentPage] = useState(1)
+    const pageSize = 10
+
+    const pageCount = datas.length / pageSize
+
+    const pages = _.range(1, pageCount + 1)
+
+    const paginateInvoices = paginate(items, currentPage, pageSize)
     return (
         <div className="flex h-[64vh] flex-col rounded-lg">
-            <div className="flex-grow overflow-auto rounded-md border-[1px]">
-                <table className="relative w-full text-xs">
+            <div className="flex-grow rounded-md border-[1px]">
+                <table className="w-full text-xs">
                     <thead>
                         <tr className="text-left uppercase">
                             <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100" />
                             <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100">
-                                invoice#
+                                <Sorting
+                                    handleClick={() => requestSort('invNumber')}
+                                    className={getClassNamesFor('invNumber')}>
+                                    invoice#
+                                </Sorting>
                             </th>
                             <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100">
-                                issue date
+                                <Sorting
+                                    handleClick={() => requestSort('issueDate')}
+                                    className={getClassNamesFor('issueDate')}>
+                                    issue date
+                                </Sorting>
                             </th>
                             <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100">
-                                due date
+                                <Sorting
+                                    handleClick={() => requestSort('dueDate')}
+                                    className={getClassNamesFor('dueDate')}>
+                                    due date
+                                </Sorting>
                             </th>
                             <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100">
                                 status
                             </th>
                             <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100">
-                                due in
+                                <Sorting
+                                    handleClick={() => requestSort('dueIn')}
+                                    className={getClassNamesFor('dueIn')}>
+                                    due in
+                                </Sorting>
                             </th>
                             <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100">
-                                amount due
+                                <Sorting
+                                    handleClick={() => requestSort('amountDue')}
+                                    className={getClassNamesFor('amountDue')}>
+                                    amount due
+                                </Sorting>
                             </th>
                             <th className="sticky top-0 px-6 py-3 font-semibold text-gray-500 bg-gray-100 w-52" />
                         </tr>
                     </thead>
                     <tbody className="bg-white-100">
-                        {datas &&
-                            datas.map((data, idx) => (
-                                <Item key={idx} data={data} />
+                        {paginateInvoices &&
+                            paginateInvoices.map((data, idx) => (
+                                <Item
+                                    key={idx}
+                                    data={data}
+                                    handlerModal={handlerModal}
+                                />
                             ))}
                     </tbody>
                 </table>
+            </div>
+            <div className="flex justify-center p-3">
+                <Pagination
+                    total={pages.length}
+                    page={currentPage}
+                    initialPage={1}
+                    color="secondary"
+                    size="sm"
+                    shadow
+                    siblings={2}
+                    noMargin
+                    onChange={page => setCurrentPage(page)}
+                />
             </div>
         </div>
     )
@@ -374,6 +440,17 @@ export default function Invoices() {
             setFilteredOutstanding(dataOutstanding)
             setFilteredPaid(dataPaid)
         }
+    }
+
+    const [visible, setVisible] = useState(false)
+    const [invNumber, setInvNumber] = useState('')
+    const handlerModal = x => {
+        setInvNumber(x)
+        setVisible(true)
+    }
+
+    const closeHandler = () => {
+        setVisible(false)
     }
 
     const profile = (
@@ -559,24 +636,28 @@ export default function Invoices() {
                                 <Listinvoices
                                     datas={filteredResults}
                                     loading={isLoadingInvoice}
+                                    handlerModal={handlerModal}
                                 />
                             </div>
                             <div className={`${openTab === 2 ? '' : 'hidden'}`}>
                                 <Listinvoices
                                     datas={filteredOverdue}
                                     loading={isLoadingInvoice}
+                                    handlerModal={handlerModal}
                                 />
                             </div>
                             <div className={`${openTab === 3 ? '' : 'hidden'}`}>
                                 <Listinvoices
                                     datas={filteredOutstanding}
                                     loading={isLoadingInvoice}
+                                    handlerModal={handlerModal}
                                 />
                             </div>
                             <div className={`${openTab === 4 ? '' : 'hidden'}`}>
                                 <Listinvoices
                                     datas={filteredPaid}
                                     loading={isLoadingInvoice}
+                                    handlerModal={handlerModal}
                                 />
                             </div>
                         </Card>
@@ -628,6 +709,11 @@ export default function Invoices() {
                     </div>
                 </div>
             </div>
+            <ModalRequestInvoice
+                visible={visible}
+                closeHandler={closeHandler}
+                invNo={invNumber}
+            />
         </Mainlayout>
     )
 }

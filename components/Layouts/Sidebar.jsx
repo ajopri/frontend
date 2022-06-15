@@ -44,7 +44,7 @@ export default function Sidebar() {
                 />
             </button>
             {/* Logo */}
-            <div className="flex justify-center h-16 px-3 py-3">
+            <div className="flex justify-center h-16 px-3 py-3 border-b-2 border-gray-300 mx-3">
                 {/* {!openSidebar ? ( */}
                 <div
                     className={`${
@@ -66,7 +66,6 @@ export default function Sidebar() {
                 className={`flex flex-col ${
                     openSidebar ? 'gap-y-0' : 'gap-y-3'
                 }`}>
-                <Image src="/line.svg" width={90} height={10} />
                 {[
                     ['Dashboard', '/dashboard', faChartBar],
                     ['Order Management', '/order-management', faShoppingCart],
